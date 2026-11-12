@@ -1,0 +1,1979 @@
+{
+  "components" : {
+    "headers" : {
+      "UCNTotalCount" : {
+        "description" : "Total number of results",
+        "example" : 150,
+        "explode" : false,
+        "required" : true,
+        "schema" : {
+          "type" : "string"
+        },
+        "style" : "simple"
+      },
+      "UCNPerPage" : {
+        "description" : "Number of element per page",
+        "example" : 20,
+        "explode" : false,
+        "required" : true,
+        "schema" : {
+          "type" : "string"
+        },
+        "style" : "simple"
+      },
+      "UCNCurrentPage" : {
+        "description" : "Current page",
+        "example" : 2,
+        "explode" : false,
+        "required" : true,
+        "schema" : {
+          "type" : "string"
+        },
+        "style" : "simple"
+      },
+      "UCNTotalPages" : {
+        "description" : "Total number of pages",
+        "example" : 8,
+        "explode" : false,
+        "required" : true,
+        "schema" : {
+          "type" : "string"
+        },
+        "style" : "simple"
+      }
+    },
+    "parameters" : {
+      "PlatformIdPathParameters" : {
+        "description" : "ID of the platform",
+        "example" : "4300027",
+        "explode" : false,
+        "in" : "path",
+        "name" : "platformId",
+        "required" : true,
+        "schema" : {
+          "type" : "string"
+        },
+        "style" : "simple"
+      },
+      "Search" : {
+        "description" : "Search keyword to filter platforms by name or business name.",
+        "example" : "Plateforme X",
+        "explode" : true,
+        "in" : "query",
+        "name" : "search",
+        "required" : false,
+        "schema" : {
+          "type" : "string"
+        },
+        "style" : "form"
+      },
+      "Sort" : {
+        "description" : "List of sorting parameters for both ascending and descending orders\n",
+        "examples" : {
+          "Ascending sort" : {
+            "value" : {
+              "array" : true,
+              "bigDecimal" : false,
+              "bigInteger" : false,
+              "binary" : false,
+              "boolean" : false,
+              "containerNode" : true,
+              "double" : false,
+              "empty" : false,
+              "float" : false,
+              "floatingPointNumber" : false,
+              "int" : false,
+              "integralNumber" : false,
+              "long" : false,
+              "missingNode" : false,
+              "nodeType" : "ARRAY",
+              "null" : false,
+              "number" : false,
+              "object" : false,
+              "pojo" : false,
+              "short" : false,
+              "textual" : false,
+              "valueNode" : false
+            }
+          },
+          "Descending sort" : {
+            "value" : {
+              "array" : true,
+              "bigDecimal" : false,
+              "bigInteger" : false,
+              "binary" : false,
+              "boolean" : false,
+              "containerNode" : true,
+              "double" : false,
+              "empty" : false,
+              "float" : false,
+              "floatingPointNumber" : false,
+              "int" : false,
+              "integralNumber" : false,
+              "long" : false,
+              "missingNode" : false,
+              "nodeType" : "ARRAY",
+              "null" : false,
+              "number" : false,
+              "object" : false,
+              "pojo" : false,
+              "short" : false,
+              "textual" : false,
+              "valueNode" : false
+            }
+          },
+          "Multiple sort" : {
+            "value" : {
+              "array" : true,
+              "bigDecimal" : false,
+              "bigInteger" : false,
+              "binary" : false,
+              "boolean" : false,
+              "containerNode" : true,
+              "double" : false,
+              "empty" : false,
+              "float" : false,
+              "floatingPointNumber" : false,
+              "int" : false,
+              "integralNumber" : false,
+              "long" : false,
+              "missingNode" : false,
+              "nodeType" : "ARRAY",
+              "null" : false,
+              "number" : false,
+              "object" : false,
+              "pojo" : false,
+              "short" : false,
+              "textual" : false,
+              "valueNode" : false
+            }
+          }
+        },
+        "explode" : true,
+        "in" : "query",
+        "name" : "sort",
+        "required" : false,
+        "schema" : {
+          "items" : {
+            "type" : "string"
+          },
+          "type" : "array"
+        },
+        "style" : "form"
+      },
+      "PageNumber" : {
+        "description" : "The page number to retrieve (for pagination).",
+        "example" : 1,
+        "explode" : true,
+        "in" : "query",
+        "name" : "page",
+        "required" : false,
+        "schema" : {
+          "minimum" : 1,
+          "type" : "integer"
+        },
+        "style" : "form"
+      },
+      "PageSize" : {
+        "description" : "The number of results per page (for pagination).",
+        "example" : 10,
+        "explode" : true,
+        "in" : "query",
+        "name" : "size",
+        "required" : false,
+        "schema" : {
+          "maximum" : 500,
+          "minimum" : 1,
+          "type" : "integer"
+        },
+        "style" : "form"
+      },
+      "AcceptLanguage" : {
+        "description" : "Describe the expected language in the results",
+        "explode" : false,
+        "in" : "header",
+        "name" : "Accept-Language",
+        "required" : false,
+        "schema" : {
+          "default" : "FR",
+          "enum" : [ "FR", "EN" ],
+          "type" : "string"
+        },
+        "style" : "simple"
+      }
+    },
+    "responses" : {
+      "FileResponse" : {
+        "content" : {
+          "application/octet-stream" : {
+            "schema" : {
+              "format" : "binary",
+              "type" : "string"
+            }
+          }
+        },
+        "description" : "File retrieved successfully."
+      },
+      "BadRequest" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "items" : {
+                "properties" : {
+                  "code" : {
+                    "description" : "Code of the error",
+                    "type" : "string"
+                  },
+                  "message" : {
+                    "description" : "A message describing the error",
+                    "type" : "string"
+                  },
+                  "description" : {
+                    "type" : "string"
+                  }
+                },
+                "type" : "object"
+              },
+              "type" : "array"
+            }
+          }
+        },
+        "description" : "Bad request"
+      },
+      "UnauthorizedError" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "items" : {
+                "properties" : {
+                  "code" : {
+                    "description" : "Code of the error",
+                    "type" : "string"
+                  },
+                  "message" : {
+                    "description" : "A message describing the error",
+                    "type" : "string"
+                  },
+                  "description" : {
+                    "type" : "string"
+                  }
+                },
+                "type" : "object"
+              },
+              "type" : "array"
+            }
+          }
+        },
+        "description" : "Access unauthorized"
+      },
+      "ForbiddenError" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "items" : {
+                "properties" : {
+                  "code" : {
+                    "description" : "Code of the error",
+                    "type" : "string"
+                  },
+                  "message" : {
+                    "description" : "A message describing the error",
+                    "type" : "string"
+                  },
+                  "description" : {
+                    "type" : "string"
+                  }
+                },
+                "type" : "object"
+              },
+              "type" : "array"
+            }
+          }
+        },
+        "description" : "Access unauthorized for this resource"
+      },
+      "NotFound" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "items" : {
+                "properties" : {
+                  "code" : {
+                    "description" : "Code of the error",
+                    "type" : "string"
+                  },
+                  "message" : {
+                    "description" : "A message describing the error",
+                    "type" : "string"
+                  },
+                  "description" : {
+                    "type" : "string"
+                  }
+                },
+                "type" : "object"
+              },
+              "type" : "array"
+            }
+          }
+        },
+        "description" : "Resource not found"
+      },
+      "TechnicalError" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "items" : {
+                "properties" : {
+                  "code" : {
+                    "description" : "Code of the error",
+                    "type" : "string"
+                  },
+                  "message" : {
+                    "description" : "A message describing the error",
+                    "type" : "string"
+                  },
+                  "description" : {
+                    "type" : "string"
+                  }
+                },
+                "type" : "object"
+              },
+              "type" : "array"
+            }
+          }
+        },
+        "description" : "Technical error"
+      }
+    },
+    "schemas" : { },
+    "securitySchemes" : {
+      "oauth2" : {
+        "description" : "Mandatory authentication token (OAuth2 Client Credentials)",
+        "flows" : {
+          "clientCredentials" : {
+            "scopes" : {
+              "ods.pn.platforms" : "Access to the API Plateforme numerique Echanges reels"
+            },
+            "tokenUrl" : "https://api.urssaf.fr/api/oauth/v1/token"
+          }
+        },
+        "type" : "oauth2"
+      }
+    }
+  },
+  "info" : {
+    "description" : "L'API portail Plateforme numerique - Echanges reels, necessite l'inscription prealable au portail Plateforme numerique. Dans le cadre du prelevement a la source des cotisations sociales des auto-entrepreneurs par les plateformes numeriques, cette API permet aux plateformes d'automatiser certains echanges avec l'Urssaf.\n",
+    "title" : "API portail Plateforme numerique Echanges reels",
+    "version" : "1.0.0"
+  },
+  "openapi" : "3.0.1",
+  "paths" : {
+    "/platforms/{platformId}/identifications/upload" : {
+      "post" : {
+        "description" : "Submits a monthly identification file for a given platform. The file must follow the DPID format and naming convention (e.g. `DPID_4300001_2026-05_001.xml.gz`).\n\nOnce uploaded, the file is queued for asynchronous processing by Urssaf. The returned `urssafRef` uniquely identifies this submission and must be used to poll the processing status via `GET /platforms/{platformId}/identifications/{urssafRef}`.\n\n**Business rules:**\n  - The upload window is constrained by the identification calendar period. Uploads\n    outside this window may be rejected.\n  - Only one identification file per platform per period should be submitted.\n  - The platform must have production access enabled to submit files outside of\n    sandbox mode.\n",
+        "operationId" : "uploadPlatformIdentification",
+        "parameters" : [ {
+          "description" : "ID of the platform",
+          "example" : "4300027",
+          "explode" : false,
+          "in" : "path",
+          "name" : "platformId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "simple"
+        }, {
+          "description" : "Describe the expected language in the results",
+          "explode" : false,
+          "in" : "header",
+          "name" : "Accept-Language",
+          "required" : false,
+          "schema" : {
+            "default" : "FR",
+            "enum" : [ "FR", "EN" ],
+            "type" : "string"
+          },
+          "style" : "simple"
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "example" : {
+                "array" : false,
+                "bigDecimal" : false,
+                "bigInteger" : false,
+                "binary" : false,
+                "boolean" : false,
+                "containerNode" : true,
+                "double" : false,
+                "empty" : false,
+                "float" : false,
+                "floatingPointNumber" : false,
+                "int" : false,
+                "integralNumber" : false,
+                "long" : false,
+                "missingNode" : false,
+                "nodeType" : "OBJECT",
+                "null" : false,
+                "number" : false,
+                "object" : true,
+                "pojo" : false,
+                "short" : false,
+                "textual" : false,
+                "valueNode" : false
+              },
+              "schema" : { }
+            }
+          },
+          "description" : "Identification file submitted as `multipart/form-data`. The `name` field must follow the DPID naming convention and the `data` field must contain the binary content of the compressed XML file.\n",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : { }
+              }
+            },
+            "description" : "File successfully received and queued for asynchronous processing. The `urssafRef` returned must be retained to track the processing status of this submission.\n"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Bad request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Access unauthorized"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Access unauthorized for this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Technical error"
+          }
+        },
+        "summary" : "Upload a platform identification file.",
+        "tags" : [ "Identifications" ]
+      }
+    },
+    "/platforms/{platformId}/identifications/{urssafRef}" : {
+      "get" : {
+        "description" : "Returns the details and current processing status of an identification file submission, identified by its unique Urssaf reference.\n\nThe `status` field reflects the processing state of the file on Urssaf's side:\n  - `IN_PROCESS`: the file has been received and is being processed.\n  - `ACCEPTED`: the file has been successfully processed. Result files are\n    made available depending on the submission content (see below).\n  - `REJECTED`: the file was rejected. The global report details the reasons\n    for rejection and is available for download.\n\n\n**Result file availability:**\n  - `globalReportRef`: always produced, whether the file is accepted or rejected.\n  - `detailedReportRef`: produced only when the file is accepted.\n  - `usersAnomaliesReportRef`: produced only when the file is accepted and at\n    least one declared user has anomalies.\n  - `affiliatedUsersFileRef`: produced only when the file is accepted and at\n    least one user falls within the scope of the scheme.\n\n\nAll result files can be downloaded via `GET /platforms/{platformId}/identifications/{urssafRef}/file/{fileRef}`.\n\n**Note:** Processing is asynchronous. Consumers should poll this endpoint after upload until the status transitions out of `IN_PROCESS`.\n",
+        "operationId" : "getPlatformIdentification",
+        "parameters" : [ {
+          "description" : "ID of the platform",
+          "example" : "4300027",
+          "explode" : false,
+          "in" : "path",
+          "name" : "platformId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "simple"
+        }, {
+          "description" : "Describe the expected language in the results",
+          "explode" : false,
+          "in" : "header",
+          "name" : "Accept-Language",
+          "required" : false,
+          "schema" : {
+            "default" : "FR",
+            "enum" : [ "FR", "EN" ],
+            "type" : "string"
+          },
+          "style" : "simple"
+        }, {
+          "description" : "Unique Urssaf reference of the identification submission, as returned by `POST /platforms/{platformId}/identifications/upload`.\n",
+          "example" : "cbcf2700-110d-4abf-9835-a9b46e68d7c4",
+          "explode" : false,
+          "in" : "path",
+          "name" : "urssafRef",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "simple"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : { }
+              }
+            },
+            "description" : "Identification submission details and current processing status successfully retrieved."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Bad request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Access unauthorized"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Access unauthorized for this resource"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Resource not found"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Technical error"
+          }
+        },
+        "summary" : "Retrieve an identification submission by Urssaf reference.",
+        "tags" : [ "Identifications" ]
+      }
+    },
+    "/platforms/{platformId}/identifications" : {
+      "get" : {
+        "description" : "Returns a paginated list of identification file submissions for a given platform, ordered according to the `sort` parameter. Results can be filtered by withholding period using the `start_date` and `end_date` parameters.\n\nEach item in the list is the full `Identification` object, identical to what is returned by `GET /platforms/{platformId}/identifications/{urssafRef}`. This includes the current processing status, submission metadata, statistics, and all available result file references (`globalReportRef`, `detailedReportRef`, `usersAnomaliesReportRef`, `affiliatedUsersFileRef`).\n\nResult files can be downloaded via `GET /platforms/{platformId}/identifications/{urssafRef}/file/{fileRef}`.\n\n**Note:** This endpoint returns all submissions regardless of their status (`IN_PROCESS`, `ACCEPTED`, `REJECTED`).\n",
+        "operationId" : "searchPlatformIdentification",
+        "parameters" : [ {
+          "description" : "ID of the platform",
+          "example" : "4300027",
+          "explode" : false,
+          "in" : "path",
+          "name" : "platformId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "simple"
+        }, {
+          "description" : "Search keyword to filter platforms by name or business name.",
+          "example" : "Plateforme X",
+          "explode" : true,
+          "in" : "query",
+          "name" : "search",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "form"
+        }, {
+          "description" : "The page number to retrieve (for pagination).",
+          "example" : 1,
+          "explode" : true,
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "style" : "form"
+        }, {
+          "description" : "The number of results per page (for pagination).",
+          "example" : 10,
+          "explode" : true,
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "maximum" : 500,
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "style" : "form"
+        }, {
+          "description" : "List of sorting parameters for both ascending and descending orders\n",
+          "examples" : {
+            "Ascending sort" : {
+              "value" : {
+                "array" : true,
+                "bigDecimal" : false,
+                "bigInteger" : false,
+                "binary" : false,
+                "boolean" : false,
+                "containerNode" : true,
+                "double" : false,
+                "empty" : false,
+                "float" : false,
+                "floatingPointNumber" : false,
+                "int" : false,
+                "integralNumber" : false,
+                "long" : false,
+                "missingNode" : false,
+                "nodeType" : "ARRAY",
+                "null" : false,
+                "number" : false,
+                "object" : false,
+                "pojo" : false,
+                "short" : false,
+                "textual" : false,
+                "valueNode" : false
+              }
+            },
+            "Descending sort" : {
+              "value" : {
+                "array" : true,
+                "bigDecimal" : false,
+                "bigInteger" : false,
+                "binary" : false,
+                "boolean" : false,
+                "containerNode" : true,
+                "double" : false,
+                "empty" : false,
+                "float" : false,
+                "floatingPointNumber" : false,
+                "int" : false,
+                "integralNumber" : false,
+                "long" : false,
+                "missingNode" : false,
+                "nodeType" : "ARRAY",
+                "null" : false,
+                "number" : false,
+                "object" : false,
+                "pojo" : false,
+                "short" : false,
+                "textual" : false,
+                "valueNode" : false
+              }
+            },
+            "Multiple sort" : {
+              "value" : {
+                "array" : true,
+                "bigDecimal" : false,
+                "bigInteger" : false,
+                "binary" : false,
+                "boolean" : false,
+                "containerNode" : true,
+                "double" : false,
+                "empty" : false,
+                "float" : false,
+                "floatingPointNumber" : false,
+                "int" : false,
+                "integralNumber" : false,
+                "long" : false,
+                "missingNode" : false,
+                "nodeType" : "ARRAY",
+                "null" : false,
+                "number" : false,
+                "object" : false,
+                "pojo" : false,
+                "short" : false,
+                "textual" : false,
+                "valueNode" : false
+              }
+            }
+          },
+          "explode" : true,
+          "in" : "query",
+          "name" : "sort",
+          "required" : false,
+          "schema" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "style" : "form"
+        }, {
+          "description" : "Describe the expected language in the results",
+          "explode" : false,
+          "in" : "header",
+          "name" : "Accept-Language",
+          "required" : false,
+          "schema" : {
+            "default" : "FR",
+            "enum" : [ "FR", "EN" ],
+            "type" : "string"
+          },
+          "style" : "simple"
+        }, {
+          "description" : "Filters submissions whose withholding period (`period`) is on or after the month of this date. Format: `YYYY-MM-DD`. Only the year and month are used — the day component is ignored. If omitted, no lower bound is applied.\n",
+          "example" : "2025-04-01T00:00:00.000Z",
+          "explode" : true,
+          "in" : "query",
+          "name" : "start_date",
+          "required" : false,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "style" : "form"
+        }, {
+          "description" : "Filters submissions whose withholding period (`period`) is on or before the month of this date. Format: `YYYY-MM-DD`. Only the year and month are used — the day component is ignored. If omitted, no upper bound is applied.\n",
+          "example" : "2025-04-30T00:00:00.000Z",
+          "explode" : true,
+          "in" : "query",
+          "name" : "end_date",
+          "required" : false,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "style" : "form"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Paginated list of identification submissions successfully retrieved. Returns an empty array if no submissions match the filters.\n",
+            "headers" : {
+              "UCN-Total-Pages" : {
+                "description" : "Total number of pages",
+                "example" : 8,
+                "explode" : false,
+                "required" : true,
+                "schema" : {
+                  "type" : "string"
+                },
+                "style" : "simple"
+              },
+              "UCN-Total-Count" : {
+                "description" : "Total number of results",
+                "example" : 150,
+                "explode" : false,
+                "required" : true,
+                "schema" : {
+                  "type" : "string"
+                },
+                "style" : "simple"
+              },
+              "UCN-Current-Page" : {
+                "description" : "Current page",
+                "example" : 2,
+                "explode" : false,
+                "required" : true,
+                "schema" : {
+                  "type" : "string"
+                },
+                "style" : "simple"
+              },
+              "UCN-Per-Page" : {
+                "description" : "Number of element per page",
+                "example" : 20,
+                "explode" : false,
+                "required" : true,
+                "schema" : {
+                  "type" : "string"
+                },
+                "style" : "simple"
+              }
+            }
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Bad request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Access unauthorized"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Access unauthorized for this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Technical error"
+          }
+        },
+        "summary" : "Search identification submission history for a platform.",
+        "tags" : [ "Identifications" ]
+      }
+    },
+    "/platforms/{platformId}/identifications/{urssafRef}/file/{fileRef}" : {
+      "get" : {
+        "description" : "Downloads a specific result file associated with an identification submission. The `fileRef` value must be taken from one of the file reference fields returned by `GET /platforms/{platformId}/identifications/{urssafRef}`.\n\n**Available result files and their conditions:**\n  - `globalReportRef`: always produced, whether the submission is accepted or rejected.\n  - `detailedReportRef`: produced only when the submission is accepted.\n  - `usersAnomaliesReportRef`: produced only when the submission is accepted and\n    at least one declared user has anomalies.\n  - `affiliatedUsersFileRef`: produced only when the submission is accepted and\n    at least one user falls within the scope of the scheme.\n",
+        "operationId" : "downloadIdentificationRelatedFile",
+        "parameters" : [ {
+          "description" : "ID of the platform",
+          "example" : "4300027",
+          "explode" : false,
+          "in" : "path",
+          "name" : "platformId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "simple"
+        }, {
+          "description" : "Describe the expected language in the results",
+          "explode" : false,
+          "in" : "header",
+          "name" : "Accept-Language",
+          "required" : false,
+          "schema" : {
+            "default" : "FR",
+            "enum" : [ "FR", "EN" ],
+            "type" : "string"
+          },
+          "style" : "simple"
+        }, {
+          "description" : "Unique Urssaf reference of the identification submission, as returned by `POST /platforms/{platformId}/identifications/upload`.\n",
+          "example" : "cbcf2700-110d-4abf-9835-a9b46e68d7c4",
+          "explode" : false,
+          "in" : "path",
+          "name" : "urssafRef",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "simple"
+        }, {
+          "description" : "Reference of the file to download, as found in the corresponding field (`globalReportRef.fileId`, `detailedReportRef.fileId`, etc.) returned by `GET /platforms/{platformId}/identifications/{urssafRef}`.\n",
+          "example" : "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+          "explode" : false,
+          "in" : "path",
+          "name" : "fileRef",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "simple"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/octet-stream" : {
+                "schema" : {
+                  "format" : "binary",
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "File retrieved successfully."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Bad request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Access unauthorized"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Access unauthorized for this resource"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Resource not found"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Technical error"
+          }
+        },
+        "summary" : "Download a result file from an identification submission.",
+        "tags" : [ "Identifications" ]
+      }
+    },
+    "/platforms/{platformId}/declarations/upload" : {
+      "post" : {
+        "description" : "Submits a declaration or regularisation file for a given platform. The `type` query parameter determines which type of file is being submitted, as each type follows a distinct interface contract and must comply with its corresponding XSD schema:\n  - `DECLARATION`: a main declaration file covering a single withholding month.\n    Must follow the DPDE XSD. The submission window is constrained by the\n    declaration calendar period.\n  - `REGULARISATION`: a regularisation file that can cover one or more\n    withholding months. Must follow the DPRE XSD. A regularisation file can\n    be submitted at any time, outside of any calendar constraint.\n\n\nOnce uploaded, the file is queued for asynchronous processing by Urssaf. The returned `urssafRef` uniquely identifies this submission and must be used to poll the processing status via `GET /platforms/{platformId}/declarations/{urssafRef}`.\n\n**Business rules:**\n  - Only one `DECLARATION` and one `REGULARISATION` can be in process at a time\n    for a given platform. If a new file is submitted while one of the same type\n    is already being processed, the API will accept the upload, but the\n    processing system will reject it and produce a global report with a specific\n    anomaly detailing the reason.\n  - The platform must have production access enabled to submit files outside of\n    sandbox mode.\n",
+        "operationId" : "uploadPlatformDeclaration",
+        "parameters" : [ {
+          "description" : "ID of the platform",
+          "example" : "4300027",
+          "explode" : false,
+          "in" : "path",
+          "name" : "platformId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "simple"
+        }, {
+          "description" : "Describe the expected language in the results",
+          "explode" : false,
+          "in" : "header",
+          "name" : "Accept-Language",
+          "required" : false,
+          "schema" : {
+            "default" : "FR",
+            "enum" : [ "FR", "EN" ],
+            "type" : "string"
+          },
+          "style" : "simple"
+        }, {
+          "description" : "Type of file being submitted. Determines the applicable XSD schema and business rules. Use `DECLARATION` for a main monthly declaration file, or `REGULARISATION` for a corrective file covering one or more past periods.\n",
+          "explode" : true,
+          "in" : "query",
+          "name" : "type",
+          "required" : true,
+          "schema" : {
+            "enum" : [ "DECLARATION", "REGULARISATION" ],
+            "type" : "string"
+          },
+          "style" : "form"
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "examples" : {
+                "Declaration" : {
+                  "value" : {
+                    "array" : false,
+                    "bigDecimal" : false,
+                    "bigInteger" : false,
+                    "binary" : false,
+                    "boolean" : false,
+                    "containerNode" : true,
+                    "double" : false,
+                    "empty" : false,
+                    "float" : false,
+                    "floatingPointNumber" : false,
+                    "int" : false,
+                    "integralNumber" : false,
+                    "long" : false,
+                    "missingNode" : false,
+                    "nodeType" : "OBJECT",
+                    "null" : false,
+                    "number" : false,
+                    "object" : true,
+                    "pojo" : false,
+                    "short" : false,
+                    "textual" : false,
+                    "valueNode" : false
+                  }
+                },
+                "Regularisation" : {
+                  "value" : {
+                    "array" : false,
+                    "bigDecimal" : false,
+                    "bigInteger" : false,
+                    "binary" : false,
+                    "boolean" : false,
+                    "containerNode" : true,
+                    "double" : false,
+                    "empty" : false,
+                    "float" : false,
+                    "floatingPointNumber" : false,
+                    "int" : false,
+                    "integralNumber" : false,
+                    "long" : false,
+                    "missingNode" : false,
+                    "nodeType" : "OBJECT",
+                    "null" : false,
+                    "number" : false,
+                    "object" : true,
+                    "pojo" : false,
+                    "short" : false,
+                    "textual" : false,
+                    "valueNode" : false
+                  }
+                }
+              },
+              "schema" : { }
+            }
+          },
+          "description" : "Declaration or regularisation file submitted as `multipart/form-data`. The `name` field must follow the appropriate naming convention (DPDE for declarations, DPRE for regularisations) and the `data` field must contain the binary content of the compressed XML file.\n",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : { }
+              }
+            },
+            "description" : "File successfully received and queued for asynchronous processing. The `urssafRef` returned must be retained to track the processing status of this submission. A `200` response does not guarantee the file will be accepted by the processing system — the final outcome must be checked via `GET /platforms/{platformId}/declarations/{urssafRef}`.\n"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Bad request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Access unauthorized"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Access unauthorized for this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Technical error"
+          }
+        },
+        "summary" : "Upload a platform declaration or regularisation file.",
+        "tags" : [ "Declarations" ]
+      }
+    },
+    "/platforms/{platformId}/declarations/{urssafRef}" : {
+      "get" : {
+        "description" : "Returns the details and current processing status of a declaration or regularisation file submission, identified by its unique Urssaf reference.\n\n**File processing status (`status`):**\n  - `IN_PROCESS`: the file has been received and is being processed by Urssaf.\n  - `ACCEPTED`: the file has been successfully processed. Report files are made\n    available depending on the submission content (see below).\n  - `REJECTED`: the file was rejected. The global report details the reasons\n    for rejection and is available for download.\n\n\n**Report file availability:**\n  - `globalReportRef`: always produced, whether the submission is accepted or rejected.\n  - `detailedReportRef`: produced only when the submission is accepted.\n  - `usersAnomaliesReportRef`: produced only when the submission is accepted and\n    at least one declared user has anomalies.\n\n\nAll report files can be downloaded via `GET /platforms/{platformId}/declarations/{urssafRef}/file/{fileRef}`.\n\n**Payment status (`paymentStatus`):**\n  - `NOT_INITIATED`: no payment action has been taken yet. This is also the status\n    reached when a previously initiated payment is cancelled (see below).\n  - `DECLARED`: a bank transfer has been declared on the portal, but Urssaf has\n    not yet received the funds. Transitions back to `NOT_INITIATED` if the\n    declared transfer expires before Urssaf receives the payment.\n  - `PROCESSING`: a PIS payment has been initiated on the portal, but Urssaf has\n    not yet received the funds. Transitions back to `NOT_INITIATED` if the PIS\n    payment fails.\n  - `INTERLOCUTION`: the file was rejected due to a discrepancy between the\n    contribution amount declared in the file and the amount received by Urssaf.\n    A corrective file has been submitted, but the interlocution process with\n    Urssaf is not yet finalised. The platform must either initiate contact with\n    Urssaf if none has been made, or continue the ongoing exchange. Transitions\n    back to `NOT_INITIATED` once the interlocution process is finalised.\n  - `PROCESSED`: Urssaf has received a payment. If the file is still `IN_PROCESS`,\n    it is not yet known whether the payment matches the declared amount. If the\n    file is `REJECTED`, a discrepancy was detected between the file and the\n    payment received. If the file is `ACCEPTED`, the full declaration flow is\n    complete. Note that for regularisation files with no additional contribution\n    amount due, `paymentStatus` transitions directly to `PROCESSED` without any\n    payment action being required.\n\n\n**Note:** `status` and `paymentStatus` are independent fields and must be read separately. Processing is asynchronous — consumers should poll this endpoint after upload until the status transitions out of `IN_PROCESS`.\n",
+        "operationId" : "getPlatformDeclaration",
+        "parameters" : [ {
+          "description" : "ID of the platform",
+          "example" : "4300027",
+          "explode" : false,
+          "in" : "path",
+          "name" : "platformId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "simple"
+        }, {
+          "description" : "Describe the expected language in the results",
+          "explode" : false,
+          "in" : "header",
+          "name" : "Accept-Language",
+          "required" : false,
+          "schema" : {
+            "default" : "FR",
+            "enum" : [ "FR", "EN" ],
+            "type" : "string"
+          },
+          "style" : "simple"
+        }, {
+          "description" : "Unique Urssaf reference of the declaration submission, as returned by `POST /platforms/{platformId}/declarations/upload`.\n",
+          "example" : "cbcf2700-110d-4abf-9835-a9b46e68d7c4",
+          "explode" : false,
+          "in" : "path",
+          "name" : "urssafRef",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "simple"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : { }
+              }
+            },
+            "description" : "Declaration submission details and current processing status successfully retrieved."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Bad request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Access unauthorized"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Access unauthorized for this resource"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Resource not found"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Technical error"
+          }
+        },
+        "summary" : "Retrieve a declaration submission by Urssaf reference.",
+        "tags" : [ "Declarations" ]
+      }
+    },
+    "/platforms/{platformId}/declarations" : {
+      "get" : {
+        "description" : "Returns a paginated list of declaration and regularisation file submissions for a given platform, ordered according to the `sort` parameter. Results can be filtered by type and by withholding period using the `type`, `start_date` and `end_date` parameters.\n\nEach item in the list is the full `Declaration` object, identical to what is returned by `GET /platforms/{platformId}/declarations/{urssafRef}`. This includes the current processing status, payment status, submission metadata, statistics, and all available report file references (`globalReportRef`, `detailedReportRef`, `usersAnomaliesReportRef`).\n\nReport files can be downloaded via `GET /platforms/{platformId}/declarations/{urssafRef}/file/{fileRef}`.\n\n**Declaration types:**\n  - `DECLARATION`: a main declaration file covering a single withholding month.\n  - `REGULARISATION`: a corrective file that can cover one or more withholding\n    months.\n\n\n**Note:** This endpoint returns all submissions regardless of their `status` (`IN_PROCESS`, `ACCEPTED`, `REJECTED`) or `paymentStatus`.\n",
+        "operationId" : "searchPlatformDeclaration",
+        "parameters" : [ {
+          "description" : "ID of the platform",
+          "example" : "4300027",
+          "explode" : false,
+          "in" : "path",
+          "name" : "platformId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "simple"
+        }, {
+          "description" : "Search keyword to filter platforms by name or business name.",
+          "example" : "Plateforme X",
+          "explode" : true,
+          "in" : "query",
+          "name" : "search",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "form"
+        }, {
+          "description" : "The page number to retrieve (for pagination).",
+          "example" : 1,
+          "explode" : true,
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "style" : "form"
+        }, {
+          "description" : "The number of results per page (for pagination).",
+          "example" : 10,
+          "explode" : true,
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "maximum" : 500,
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "style" : "form"
+        }, {
+          "description" : "List of sorting parameters for both ascending and descending orders\n",
+          "examples" : {
+            "Ascending sort" : {
+              "value" : {
+                "array" : true,
+                "bigDecimal" : false,
+                "bigInteger" : false,
+                "binary" : false,
+                "boolean" : false,
+                "containerNode" : true,
+                "double" : false,
+                "empty" : false,
+                "float" : false,
+                "floatingPointNumber" : false,
+                "int" : false,
+                "integralNumber" : false,
+                "long" : false,
+                "missingNode" : false,
+                "nodeType" : "ARRAY",
+                "null" : false,
+                "number" : false,
+                "object" : false,
+                "pojo" : false,
+                "short" : false,
+                "textual" : false,
+                "valueNode" : false
+              }
+            },
+            "Descending sort" : {
+              "value" : {
+                "array" : true,
+                "bigDecimal" : false,
+                "bigInteger" : false,
+                "binary" : false,
+                "boolean" : false,
+                "containerNode" : true,
+                "double" : false,
+                "empty" : false,
+                "float" : false,
+                "floatingPointNumber" : false,
+                "int" : false,
+                "integralNumber" : false,
+                "long" : false,
+                "missingNode" : false,
+                "nodeType" : "ARRAY",
+                "null" : false,
+                "number" : false,
+                "object" : false,
+                "pojo" : false,
+                "short" : false,
+                "textual" : false,
+                "valueNode" : false
+              }
+            },
+            "Multiple sort" : {
+              "value" : {
+                "array" : true,
+                "bigDecimal" : false,
+                "bigInteger" : false,
+                "binary" : false,
+                "boolean" : false,
+                "containerNode" : true,
+                "double" : false,
+                "empty" : false,
+                "float" : false,
+                "floatingPointNumber" : false,
+                "int" : false,
+                "integralNumber" : false,
+                "long" : false,
+                "missingNode" : false,
+                "nodeType" : "ARRAY",
+                "null" : false,
+                "number" : false,
+                "object" : false,
+                "pojo" : false,
+                "short" : false,
+                "textual" : false,
+                "valueNode" : false
+              }
+            }
+          },
+          "explode" : true,
+          "in" : "query",
+          "name" : "sort",
+          "required" : false,
+          "schema" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "style" : "form"
+        }, {
+          "description" : "Describe the expected language in the results",
+          "explode" : false,
+          "in" : "header",
+          "name" : "Accept-Language",
+          "required" : false,
+          "schema" : {
+            "default" : "FR",
+            "enum" : [ "FR", "EN" ],
+            "type" : "string"
+          },
+          "style" : "simple"
+        }, {
+          "description" : "Filters submissions by declaration type. Use `DECLARATION` to retrieve only main declaration files, or `REGULARISATION` to retrieve only regularisation files. If omitted, both types are returned.\n",
+          "explode" : true,
+          "in" : "query",
+          "name" : "type",
+          "required" : false,
+          "schema" : {
+            "enum" : [ "DECLARATION", "REGULARISATION" ],
+            "type" : "string"
+          },
+          "style" : "form"
+        }, {
+          "description" : "Filters submissions where at least one withholding period (`period`) is on or after the month of this date. Format: `YYYY-MM-DD`. Only the year and month are used — the day component is ignored. If omitted, no lower bound is applied.\n",
+          "example" : "2025-04-01T00:00:00.000Z",
+          "explode" : true,
+          "in" : "query",
+          "name" : "start_date",
+          "required" : false,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "style" : "form"
+        }, {
+          "description" : "Filters submissions where at least one withholding period (`period`) is on or before the month of this date. Format: `YYYY-MM-DD`. Only the year and month are used — the day component is ignored. If omitted, no upper bound is applied.\n",
+          "example" : "2025-04-30T00:00:00.000Z",
+          "explode" : true,
+          "in" : "query",
+          "name" : "end_date",
+          "required" : false,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "style" : "form"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Paginated list of declaration submissions successfully retrieved. Returns an empty array if no submissions match the filters.\n",
+            "headers" : {
+              "UCN-Total-Pages" : {
+                "description" : "Total number of pages",
+                "example" : 8,
+                "explode" : false,
+                "required" : true,
+                "schema" : {
+                  "type" : "string"
+                },
+                "style" : "simple"
+              },
+              "UCN-Total-Count" : {
+                "description" : "Total number of results",
+                "example" : 150,
+                "explode" : false,
+                "required" : true,
+                "schema" : {
+                  "type" : "string"
+                },
+                "style" : "simple"
+              },
+              "UCN-Current-Page" : {
+                "description" : "Current page",
+                "example" : 2,
+                "explode" : false,
+                "required" : true,
+                "schema" : {
+                  "type" : "string"
+                },
+                "style" : "simple"
+              },
+              "UCN-Per-Page" : {
+                "description" : "Number of element per page",
+                "example" : 20,
+                "explode" : false,
+                "required" : true,
+                "schema" : {
+                  "type" : "string"
+                },
+                "style" : "simple"
+              }
+            }
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Bad request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Access unauthorized"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Access unauthorized for this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Technical error"
+          }
+        },
+        "summary" : "Search declaration submission history for a platform.",
+        "tags" : [ "Declarations" ]
+      }
+    },
+    "/platforms/{platformId}/declarations/{urssafRef}/file/{fileRef}" : {
+      "get" : {
+        "description" : "Downloads a specific report file associated with a declaration or regularisation submission. The `fileRef` value must be taken from one of the file reference fields returned by `GET /platforms/{platformId}/declarations/{urssafRef}`.\n\n**Available report files and their conditions:**\n  - `globalReportRef`: always produced, whether the submission is accepted or rejected.\n  - `detailedReportRef`: produced only when the submission is accepted.\n  - `usersAnomaliesReportRef`: produced only when the submission is accepted and\n    at least one declared user has anomalies.\n",
+        "operationId" : "downloadDeclarationRelatedFile",
+        "parameters" : [ {
+          "description" : "ID of the platform",
+          "example" : "4300027",
+          "explode" : false,
+          "in" : "path",
+          "name" : "platformId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "simple"
+        }, {
+          "description" : "Describe the expected language in the results",
+          "explode" : false,
+          "in" : "header",
+          "name" : "Accept-Language",
+          "required" : false,
+          "schema" : {
+            "default" : "FR",
+            "enum" : [ "FR", "EN" ],
+            "type" : "string"
+          },
+          "style" : "simple"
+        }, {
+          "description" : "Unique Urssaf reference of the declaration submission, as returned by `POST /platforms/{platformId}/declarations/upload`.\n",
+          "example" : "cbcf2700-110d-4abf-9835-a9b46e68d7c4",
+          "explode" : false,
+          "in" : "path",
+          "name" : "urssafRef",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "simple"
+        }, {
+          "description" : "Reference of the report file to download, as found in the corresponding field (`globalReportRef.fileId`, `detailedReportRef.fileId`, etc.) returned by `GET /platforms/{platformId}/declarations/{urssafRef}`.\n",
+          "example" : "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+          "explode" : false,
+          "in" : "path",
+          "name" : "fileRef",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "simple"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/octet-stream" : {
+                "schema" : {
+                  "format" : "binary",
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "File retrieved successfully."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Bad request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Access unauthorized"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Access unauthorized for this resource"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Resource not found"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Technical error"
+          }
+        },
+        "summary" : "Download a report file from a declaration submission.",
+        "tags" : [ "Declarations" ]
+      }
+    },
+    "/platforms/{platformId}/news-feed" : {
+      "get" : {
+        "description" : "Returns a paginated list of notifications for a given platform, ordered by `newsDate` descending by default. The ordering can be changed via the `sort` parameter.\n\nNotifications are generated automatically by the system to inform the platform of key events, such as a file being successfully uploaded or new report files becoming available. The `newsText` field is a human-readable message whose language is determined by the `Accept-Language` header.\n\nTypical notification events include:\n  - A file has been successfully uploaded (e.g. `\"Your file DPID_... has been\n    successfully uploaded.\"`).\n  - New report files are available for a given submission (e.g. `\"DPID_...:\n    new reports available.\"`).\n\n\nSandbox notifications are prefixed with `\"Sandbox\"` in the `newsText` field, allowing the platform to distinguish between sandbox and production events.\n",
+        "operationId" : "getPlatformNewsFeed",
+        "parameters" : [ {
+          "description" : "ID of the platform",
+          "example" : "4300027",
+          "explode" : false,
+          "in" : "path",
+          "name" : "platformId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "simple"
+        }, {
+          "description" : "The page number to retrieve (for pagination).",
+          "example" : 1,
+          "explode" : true,
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "style" : "form"
+        }, {
+          "description" : "The number of results per page (for pagination).",
+          "example" : 10,
+          "explode" : true,
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "maximum" : 500,
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "style" : "form"
+        }, {
+          "description" : "List of sorting parameters for both ascending and descending orders\n",
+          "examples" : {
+            "Ascending sort" : {
+              "value" : {
+                "array" : true,
+                "bigDecimal" : false,
+                "bigInteger" : false,
+                "binary" : false,
+                "boolean" : false,
+                "containerNode" : true,
+                "double" : false,
+                "empty" : false,
+                "float" : false,
+                "floatingPointNumber" : false,
+                "int" : false,
+                "integralNumber" : false,
+                "long" : false,
+                "missingNode" : false,
+                "nodeType" : "ARRAY",
+                "null" : false,
+                "number" : false,
+                "object" : false,
+                "pojo" : false,
+                "short" : false,
+                "textual" : false,
+                "valueNode" : false
+              }
+            },
+            "Descending sort" : {
+              "value" : {
+                "array" : true,
+                "bigDecimal" : false,
+                "bigInteger" : false,
+                "binary" : false,
+                "boolean" : false,
+                "containerNode" : true,
+                "double" : false,
+                "empty" : false,
+                "float" : false,
+                "floatingPointNumber" : false,
+                "int" : false,
+                "integralNumber" : false,
+                "long" : false,
+                "missingNode" : false,
+                "nodeType" : "ARRAY",
+                "null" : false,
+                "number" : false,
+                "object" : false,
+                "pojo" : false,
+                "short" : false,
+                "textual" : false,
+                "valueNode" : false
+              }
+            },
+            "Multiple sort" : {
+              "value" : {
+                "array" : true,
+                "bigDecimal" : false,
+                "bigInteger" : false,
+                "binary" : false,
+                "boolean" : false,
+                "containerNode" : true,
+                "double" : false,
+                "empty" : false,
+                "float" : false,
+                "floatingPointNumber" : false,
+                "int" : false,
+                "integralNumber" : false,
+                "long" : false,
+                "missingNode" : false,
+                "nodeType" : "ARRAY",
+                "null" : false,
+                "number" : false,
+                "object" : false,
+                "pojo" : false,
+                "short" : false,
+                "textual" : false,
+                "valueNode" : false
+              }
+            }
+          },
+          "explode" : true,
+          "in" : "query",
+          "name" : "sort",
+          "required" : false,
+          "schema" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "style" : "form"
+        }, {
+          "description" : "Describe the expected language in the results",
+          "explode" : false,
+          "in" : "header",
+          "name" : "Accept-Language",
+          "required" : false,
+          "schema" : {
+            "default" : "FR",
+            "enum" : [ "FR", "EN" ],
+            "type" : "string"
+          },
+          "style" : "simple"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "array" : true,
+                  "bigDecimal" : false,
+                  "bigInteger" : false,
+                  "binary" : false,
+                  "boolean" : false,
+                  "containerNode" : true,
+                  "double" : false,
+                  "empty" : false,
+                  "float" : false,
+                  "floatingPointNumber" : false,
+                  "int" : false,
+                  "integralNumber" : false,
+                  "long" : false,
+                  "missingNode" : false,
+                  "nodeType" : "ARRAY",
+                  "null" : false,
+                  "number" : false,
+                  "object" : false,
+                  "pojo" : false,
+                  "short" : false,
+                  "textual" : false,
+                  "valueNode" : false
+                },
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Paginated list of notifications successfully retrieved. Returns an empty array if no notifications are available for this platform.\n",
+            "headers" : {
+              "UCN-Total-Pages" : {
+                "description" : "Total number of pages",
+                "example" : 8,
+                "explode" : false,
+                "required" : true,
+                "schema" : {
+                  "type" : "string"
+                },
+                "style" : "simple"
+              },
+              "UCN-Total-Count" : {
+                "description" : "Total number of results",
+                "example" : 150,
+                "explode" : false,
+                "required" : true,
+                "schema" : {
+                  "type" : "string"
+                },
+                "style" : "simple"
+              },
+              "UCN-Current-Page" : {
+                "description" : "Current page",
+                "example" : 2,
+                "explode" : false,
+                "required" : true,
+                "schema" : {
+                  "type" : "string"
+                },
+                "style" : "simple"
+              },
+              "UCN-Per-Page" : {
+                "description" : "Number of element per page",
+                "example" : 20,
+                "explode" : false,
+                "required" : true,
+                "schema" : {
+                  "type" : "string"
+                },
+                "style" : "simple"
+              }
+            }
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Bad request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Access unauthorized"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Access unauthorized for this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : { },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Technical error"
+          }
+        },
+        "summary" : "Retrieve the notification feed for a platform.",
+        "tags" : [ "Platforms" ]
+      }
+    }
+  },
+  "security" : [ {
+    "oauth2" : [ "ods.pn.platforms" ]
+  } ],
+  "servers" : [ {
+    "url" : "https://api.urssaf.fr/api-odspn-be-platforms/v1"
+  } ],
+  "tags" : [ {
+    "description" : "Operations related to the Identification phase",
+    "name" : "Identifications"
+  }, {
+    "description" : "Operations related to the Declaration phase",
+    "name" : "Declarations"
+  }, {
+    "description" : "Platforms operations",
+    "name" : "Platforms"
+  } ]
+}
