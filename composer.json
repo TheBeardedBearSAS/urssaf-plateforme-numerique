@@ -1,8 +1,30 @@
 {
     "name": "thebeardedbear/urssaf-plateforme-numerique",
     "description": "Client and domain model for the URSSAF \"API portail Plateforme numérique\" (digital platforms: identification and declaration files for auto-entrepreneurs)",
-    "license": "proprietary",
+    "license": "MIT",
     "type": "symfony-bundle",
+    "keywords": [
+        "urssaf",
+        "api",
+        "plateforme-numerique",
+        "precompte",
+        "prelevement-a-la-source",
+        "auto-entrepreneur",
+        "micro-entrepreneur",
+        "symfony-bundle"
+    ],
+    "authors": [
+        {
+            "name": "TheBeardedBear",
+            "homepage": "https://github.com/TheBeardedBearSAS"
+        }
+    ],
+    "homepage": "https://github.com/TheBeardedBearSAS/urssaf-plateforme-numerique",
+    "support": {
+        "issues": "https://github.com/TheBeardedBearSAS/urssaf-plateforme-numerique/issues",
+        "source": "https://github.com/TheBeardedBearSAS/urssaf-plateforme-numerique",
+        "security": "https://github.com/TheBeardedBearSAS/urssaf-plateforme-numerique/security/policy"
+    },
     "require": {
         "php": ">=8.2"
     },
