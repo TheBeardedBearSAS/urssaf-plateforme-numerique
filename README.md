@@ -1,5 +1,9 @@
 # URSSAF "API portail Plateforme numérique" for PHP
 
+<!-- the-bearded-bear:badges:start -->
+[![PHPStan level max](https://img.shields.io/badge/PHPStan-level%20max-brightgreen)](phpstan.neon.dist) [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+<!-- the-bearded-bear:badges:end -->
+
 `thebeardedbear/urssaf-plateforme-numerique` — client, domain model and Symfony integration for the URSSAF "portail
 Plateforme numérique" APIs, used by digital platforms for the withholding at source of the social contributions of
 auto-entrepreneurs: monthly identification files, declaration / regularisation files, processing and payment status,
@@ -59,12 +63,18 @@ PHP 8.2+. Development only needs Docker: every `make` target runs in a container
 
 ```sh
 make install     # build the image, install dependencies
-make ci          # full quality gate: cs, rector, phpstan, mago, deptrac, composer checks, guard, coverage, infection
+make ci          # full quality gate: cs, rector, phpstan, mago, deptrac, composer checks, hadolint, guard, coverage, infection
 make test        # unit + functional tests
+make bench       # benchmarks (PHPBench, tests/Benchmark), added with the implementation
 make help        # every target
 ```
 
 `make ci PHP_VERSION=8.4` runs the gate on another PHP version.
+
+Once the repository is public, `main` publishes its quality proofs, linked from the badges at the top of this file: the
+coverage report on Codecov, the full mutation report on the Stryker Dashboard, the SonarQube Cloud quality gate and the
+OpenSSF Scorecard. The benchmarks (`tests/Benchmark`, PHPBench in `tools/phpbench`, out of the package dependencies)
+run on every pull request against the base commit, and the job fails on a regression of more than 20 %.
 
 ## Versioning
 
