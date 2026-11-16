@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace TheBeardedBear\UrssafPlateformeNumerique\Infrastructure\Urssaf;
 
 /**
- * Paths of the URSSAF "API portail Plateforme numérique" (relative to {@see Environment::baseUri()}).
+ * Paths and scopes of the URSSAF "API portail Plateforme numérique" (relative to {@see Environment::baseUri()}).
  *
  * Two APIs share the same resources: "Échanges réels" (real exchanges) and "Bac à sable" (technical test API, served
- * from the production host under its own base path and scope). See docs/api-reference.md.
+ * from the production host under its own base path and scope). See docs/api-reference.md. The per-resource paths are
+ * built by the gateway.
  */
 final class UrssafEndpoints
 {

@@ -25,3 +25,9 @@ unknown name and format (§2.4, §2.8). The Application layer may not depend on 
 
 - Hosts produce and keep their own files; the package only transports them.
 - A naming check or an XSD validation can be added once URSSAF publishes them, behind an opt-in.
+
+## Amendment (2026-11-16, lead-accepted, lot 4)
+
+- `ergebnis.noParameterWithNullDefaultValue` (enabled in the reference too) forbids `?FileName $name = null`: the
+  local adapter has two factories, `LocalFileSource::fromPath($path)` (name = basename) and
+  `LocalFileSource::fromPathNamed($path, FileName $name)`.
