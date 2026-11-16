@@ -2,23 +2,24 @@
 
 declare(strict_types=1);
 
-namespace TheBeardedBear\UrssafPlateformeNumerique\Tests\Unit\Infrastructure\Urssaf\Wire;
+namespace TheBeardedBear\UrssafPlateformeNumerique\Tests\Unit\Application\Service;
 
 use DateTimeZone;
 use PHPUnit\Framework\TestCase;
+use TheBeardedBear\UrssafPlateformeNumerique\Application\Service\SnapshotFactory;
 use TheBeardedBear\UrssafPlateformeNumerique\Domain\Shared\DecimalNumber;
 use TheBeardedBear\UrssafPlateformeNumerique\Domain\Submission\FileStatus;
 use TheBeardedBear\UrssafPlateformeNumerique\Domain\Submission\PaymentStatus;
 use TheBeardedBear\UrssafPlateformeNumerique\Domain\Submission\ReportedPeriod;
 use TheBeardedBear\UrssafPlateformeNumerique\Infrastructure\Urssaf\Wire\DeclarationMapper;
 use TheBeardedBear\UrssafPlateformeNumerique\Infrastructure\Urssaf\Wire\IdentificationMapper;
-use TheBeardedBear\UrssafPlateformeNumerique\Infrastructure\Urssaf\Wire\SnapshotMapper;
+use TheBeardedBear\UrssafPlateformeNumerique\Tests\Unit\Infrastructure\Urssaf\Wire\WireFixtures;
 
-final class SnapshotMapperTest extends TestCase
+final class SnapshotFactoryTest extends TestCase
 {
     public function testItReducesAnIdentification(): void
     {
-        $snapshot = SnapshotMapper::fromIdentification(IdentificationMapper::map(
+        $snapshot = SnapshotFactory::fromIdentification(IdentificationMapper::map(
             WireFixtures::fixture('identification_response_handbuilt'),
             new DateTimeZone('UTC'),
         ));
@@ -38,7 +39,7 @@ final class SnapshotMapperTest extends TestCase
 
     public function testAnIdentificationWithoutPeriodNorDetails(): void
     {
-        $snapshot = SnapshotMapper::fromIdentification(IdentificationMapper::map(
+        $snapshot = SnapshotFactory::fromIdentification(IdentificationMapper::map(
             WireFixtures::payload(['status' => 'IN_PROCESS']),
             new DateTimeZone('UTC'),
         ));
@@ -51,7 +52,7 @@ final class SnapshotMapperTest extends TestCase
 
     public function testItReducesADeclaration(): void
     {
-        $snapshot = SnapshotMapper::fromDeclaration(DeclarationMapper::map(
+        $snapshot = SnapshotFactory::fromDeclaration(DeclarationMapper::map(
             WireFixtures::fixture('declaration_response_handbuilt'),
             new DateTimeZone('UTC'),
         ));
@@ -77,7 +78,7 @@ final class SnapshotMapperTest extends TestCase
 
     public function testADeclarationWithoutStatistics(): void
     {
-        $snapshot = SnapshotMapper::fromDeclaration(DeclarationMapper::map(WireFixtures::payload([]), new DateTimeZone('UTC')));
+        $snapshot = SnapshotFactory::fromDeclaration(DeclarationMapper::map(WireFixtures::payload([]), new DateTimeZone('UTC')));
 
         static::assertNull($snapshot->rawStatus());
         static::assertNull($snapshot->rawPaymentStatus());
@@ -87,7 +88,7 @@ final class SnapshotMapperTest extends TestCase
 
     public function testOnlyThePresentCountersAreKept(): void
     {
-        $snapshot = SnapshotMapper::fromDeclaration(DeclarationMapper::map(
+        $snapshot = SnapshotFactory::fromDeclaration(DeclarationMapper::map(
             WireFixtures::payload(['statistics' => ['debitAmount' => 10, 'paymentAmount' => null]]),
             new DateTimeZone('UTC'),
         ));
@@ -97,7 +98,7 @@ final class SnapshotMapperTest extends TestCase
 
     public function testNoUserDataReachesTheSnapshot(): void
     {
-        $snapshot = SnapshotMapper::fromDeclaration(DeclarationMapper::map(
+        $snapshot = SnapshotFactory::fromDeclaration(DeclarationMapper::map(
             WireFixtures::fixture('declaration_response_handbuilt'),
             new DateTimeZone('UTC'),
         ));

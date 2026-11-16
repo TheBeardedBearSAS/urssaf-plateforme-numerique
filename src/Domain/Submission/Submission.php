@@ -208,9 +208,7 @@ class Submission
      */
     public function applySnapshot(SubmissionSnapshot $snapshot, Instant $now): void
     {
-        // An urssafRef is known exactly in the states known to URSSAF (in_process, accepted, rejected).
-        $reference = $this->urssafReference
-            ?? throw InvalidStateTransition::between(self::AGGREGATE, $this->state->value, SubmissionState::InProcess->value);
+        $reference = $this->knownReference();
         $previousRawPaymentStatus = $this->snapshot?->rawPaymentStatus();
         $target = $this->state->afterPolledStatus($snapshot->status());
         $this->snapshot = $snapshot;
@@ -232,6 +230,19 @@ class Submission
                 $now,
             );
         }
+    }
+
+    /**
+     * Records a poll URSSAF did not answer with a snapshot (unknown reference, read refused): only the poll instant
+     * moves, so that the other submissions are polled first next time. No event; the state, the snapshot and the update
+     * instant are kept.
+     *
+     * @throws InvalidStateTransition when the submission is not known to URSSAF
+     */
+    public function recordPollWithoutAnswer(Instant $now): void
+    {
+        $this->knownReference();
+        $this->lastPolledAt = $now;
     }
 
     /**
@@ -358,6 +369,17 @@ class Submission
     public function lastPolledAt(): ?Instant
     {
         return $this->lastPolledAt;
+    }
+
+    /**
+     * An urssafRef is known exactly in the states known to URSSAF (in_process, accepted, rejected).
+     *
+     * @throws InvalidStateTransition when the submission is not known to URSSAF
+     */
+    private function knownReference(): UrssafReference
+    {
+        return $this->urssafReference
+            ?? throw InvalidStateTransition::between(self::AGGREGATE, $this->state->value, SubmissionState::InProcess->value);
     }
 
     /**
