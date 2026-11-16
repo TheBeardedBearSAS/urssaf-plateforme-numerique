@@ -1,0 +1,30 @@
+<?php
+
+declare(strict_types=1);
+
+namespace TheBeardedBear\UrssafPlateformeNumerique\Contract\Event;
+
+/**
+ * The upload may have reached URSSAF but its outcome is unknown: it must be reconciled before any new upload.
+ *
+ * Common submission fields: kind ("identification" or "declaration"), declarationType (null for an identification),
+ * fileName, urssafRef (null while URSSAF has not given one).
+ */
+final readonly class SubmissionOutcomeUnknown extends IntegrationEvent
+{
+    public const TYPE = 'urssaf.pn.submission.outcome_unknown';
+
+    public function __construct(
+        string $eventId,
+        string $occurredAt,
+        string $tenantId,
+        string $aggregateId,
+        string $externalReference,
+        public string $kind,
+        public ?string $declarationType,
+        public string $fileName,
+        public ?string $urssafRef,
+    ) {
+        parent::__construct($eventId, $occurredAt, $tenantId, $aggregateId, $externalReference);
+    }
+}

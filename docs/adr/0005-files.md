@@ -13,7 +13,7 @@ unknown name and format (§2.4, §2.8). The Application layer may not depend on 
 
 - The package sends a file it is given: it never generates, compresses, parses nor validates the XML (§4.3), and does
   not check the file name against a naming convention.
-- Port `Application\Port\FileSource`: `name(): string` (non-empty) and `open(): resource` (a fresh readable stream at
+- Port `Application\Port\FileSource`: `name(): FileName` and `open(): resource` (a fresh readable stream at
   each call, closed by the caller). It is opened once for the fingerprint, once for the upload, and once more for the
   replay after a 401. Infrastructure adapters: `LocalFileSource::fromPath($path, $name = basename)` and
   `InMemoryFileSource::of($name, $contents)`.

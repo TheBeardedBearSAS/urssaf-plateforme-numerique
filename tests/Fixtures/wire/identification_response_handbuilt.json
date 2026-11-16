@@ -1,0 +1,34 @@
+{
+    "identificationFileRef": "cd48ba8a-3a7e-4b80-8e87-f14a5542c6cf",
+    "identificationFileName": "DPID_202505_24001_000_20250428150823.xml.gz",
+    "period": "2025-05",
+    "urssafRef": "cd48ba8a-3a7e-4b80-8e87-f14a5542c6cf",
+    "userId": "user-0001",
+    "userEmail": "uploader@example.com",
+    "status": "ACCEPTED",
+    "statusLabel": "File successfully Processed",
+    "lastUpdateDate": "2025-04-28T20:04:14",
+    "uploadDate": "2025-04-28T20:03:51",
+    "treatmentDate": "2025-04-28T20:04:14",
+    "globalReportRef": {
+        "name": "global_report.xml",
+        "fileId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    },
+    "detailedReportRef": {
+        "name": "detailed_report.xml",
+        "fileId": "b2c3d4e5-f6a7-8901-bcde-f12345678901"
+    },
+    "usersAnomaliesReportRef": {
+        "name": "users_anomalies_report.xml",
+        "fileId": "c3d4e5f6-a7b8-9012-cdef-123456789012"
+    },
+    "affiliatedUsersFileRef": {
+        "name": "affiliated_users.xml",
+        "fileId": "d4e5f6a7-b8c9-0123-def1-234567890123"
+    },
+    "details": {
+        "numberOfDeclaredUser": 12,
+        "numberOfIdentifiedUser": 10,
+        "numberOfError": 2
+    }
+}

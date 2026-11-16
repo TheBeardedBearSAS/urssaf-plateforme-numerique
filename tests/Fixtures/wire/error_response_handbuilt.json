@@ -1,0 +1,12 @@
+[
+    {
+        "code": "ERR_EXAMPLE_001",
+        "message": "A message describing the error",
+        "description": "A description of the error"
+    },
+    {
+        "code": "ERR_EXAMPLE_002",
+        "message": "Another message",
+        "description": "Another description"
+    }
+]

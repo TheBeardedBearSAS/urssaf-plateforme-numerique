@@ -1,0 +1,36 @@
+{
+    "declarationFileRef": "cd48ba8a-3a7e-4b80-8e87-f14a5542c6cf",
+    "declarationFileName": "DPRE_202505_24001_000_20250428150823.xml.gz",
+    "declarationType": "REGULARISATION",
+    "period": ["2025-04", "2025-05"],
+    "urssafRef": "unique-file-submission-id-12345",
+    "userId": "user-0001",
+    "userEmail": "uploader@example.com",
+    "status": "ACCEPTED",
+    "statusLabel": "File successfully Processed",
+    "paymentStatus": "PROCESSED",
+    "paymentStatusLabel": "Payment processed",
+    "lastUpdateDate": "2025-04-28T20:04:14",
+    "uploadDate": "2025-04-28T20:03:51",
+    "treatmentDate": "2025-04-28T20:04:14",
+    "globalReportRef": {
+        "name": "global_report.xml",
+        "fileId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    },
+    "detailedReportRef": {
+        "name": "detailed_report.xml",
+        "fileId": "b2c3d4e5-f6a7-8901-bcde-f12345678901"
+    },
+    "usersAnomaliesReportRef": {
+        "name": "users_anomalies_report.xml",
+        "fileId": "c3d4e5f6-a7b8-9012-cdef-123456789012"
+    },
+    "statistics": {
+        "numberOfDeclaredUser": 12,
+        "totalRevenue": 15230.5,
+        "debitAmount": 3350.71,
+        "paymentAmount": 3350.71,
+        "numberOfError": 0
+    },
+    "concernedRegularisation": "DPRE_202504_24001_000_20250328150823.xml.gz"
+}

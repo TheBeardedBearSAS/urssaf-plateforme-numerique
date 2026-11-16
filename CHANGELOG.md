@@ -14,6 +14,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   and `DeclarationType` enums with raw fallback, the live read models of identifications, declarations and news
   items, pagination, validated search criteria, and the `Submission` aggregate with its local lifecycle and domain
   events (ADR 0004). Runtime requirements `ext-filter` and `ext-mbstring`.
+- Application ports (`PlatformGateway` for the nine operations, credentials, token store, platform resolver,
+  submission repository, outbox, events, clock, ids, file source, binary download stream) and the gateway
+  exceptions (`UrssafRequestRejected`, `UrssafAuthenticationFailed`, `UrssafUnavailable`, `UrssafResourceNotFound`,
+  `OutcomeUnknown`, `OperationNotSupported`).
+- Public integration events `urssaf.pn.*` (`Contract\Event`, `docs/integration-events.md`, ADR 0010).
+- Wire mappers for identifications, declarations, the news feed, upload answers, error payloads, `UCN-*`
+  pagination headers and query strings, with hand-built fixtures flagged as such (`tests/Fixtures/wire/README.md`).
 - Architecture decision records (`docs/adr/`): the reference architecture inherited from
   `thebeardedbear/urssaf-tiers-prestations` (ADR 0000) and the decisions specific to this API (ADR 0001 to 0013).
 - Project skeleton: Docker tooling, quality gates (`make ci`) and GitHub Actions CI, identical to the other URSSAF
