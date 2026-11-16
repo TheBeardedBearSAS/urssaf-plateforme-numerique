@@ -66,4 +66,4 @@ Doctrine bridges, 100 % coverage and MSI). The decisions are in [docs/adr/](adr/
    no contract test: they need URSSAF's answer or a manual check during that run.
 2. Remove the open points from [api-reference.md](api-reference.md) section 5 as they are settled, and adjust the
    assumptions recorded in the ADRs (0001, 0002, 0003, 0006).
-3. First release (version 0.x), then publication of the Flex recipe in symfony/recipes-contrib.
+3. Publication of the Flex recipe in symfony/recipes-contrib (version 0.1.0 released on 2026-11-16).
