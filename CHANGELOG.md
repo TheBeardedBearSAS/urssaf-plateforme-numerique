@@ -40,6 +40,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   tables, submission repository with an atomic claim and optimistic concurrency, DBAL outbox, workflow statistics,
   transaction manager, and `UrssafPlateformeNumeriqueBuilder::withDoctrine()`. No personal data column (ADR 0009,
   ADR 0011).
+- Symfony bundle `UrssafPlateformeNumeriqueBundle` (alias `urssaf_plateforme_numerique`, `docs/symfony.md`):
+  configuration with build-time rules, `urssaf:pn:*` console commands (uploads, sync, reconcile, resolve, show,
+  report download, news, status, outbox, check), Messenger messages, Scheduler schedule, non-blocking locks, en / fr
+  translations, simulated gateway for tests, and a Flex recipe (`recipe/`). Dev dependency `symfony/scheduler`
+  (conflict floor `<6.4.3`, as the reference).
 - Architecture decision records (`docs/adr/`): the reference architecture inherited from
   `thebeardedbear/urssaf-tiers-prestations` (ADR 0000) and the decisions specific to this API (ADR 0001 to 0013).
 - Project skeleton: Docker tooling, quality gates (`make ci`) and GitHub Actions CI, identical to the other URSSAF
