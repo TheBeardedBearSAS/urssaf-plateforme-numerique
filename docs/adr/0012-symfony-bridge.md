@@ -31,3 +31,39 @@ The reference ships a Symfony 6.4 / 7.x bundle. Several URSSAF packages may be i
 ## Consequences
 
 - The bundle and the other URSSAF bundles share nothing.
+
+## Amendment (2026-11-16, lead-accepted, lots 5-8)
+
+Compared with what `src/Bridge/Symfony` ships:
+
+- Commands: the twelve names above are the ones shipped (`Bridge\Symfony\Command`). Some of them are registered only
+  under a condition:
+  - `urssaf:pn:status` (and `GetWorkflowOverviewHandler`) only when a `WorkflowStatistics` is available. It always is,
+    except with the `custom` driver without `persistence.statistics`;
+  - `urssaf:pn:outbox:relay` and `urssaf:pn:outbox:purge` only with `outbox.enabled`.
+
+  The Messenger handlers are registered with `messenger.enabled` or `scheduler.enabled`, since the schedule dispatches
+  the messages. A command whose lock is held prints a message and exits with `0`.
+- Configuration (`BundleConfiguration`): besides the keys listed above, the bundle ships:
+  - top-level keys: `request_id_header`, `token_safety_margin`, `http_timeout` (default HTTP client only), and
+    `tenants` (the tenants processed by the commands and the schedule that cannot discover them; default: the keys of
+    `credentials`);
+  - the sub-keys of the listed sections:
+    - `token_store.{cache_pool, service}`;
+    - `rate_limiter.{enabled, max_calls, window_seconds}`;
+    - `lock.{enabled: auto|true|false, factory, ttl}`;
+    - `outbox.{enabled, sink: messenger|event_dispatcher|custom, service, retention}`;
+    - `scheduler.{enabled, sync_frequency, reconcile_frequency}`;
+    - `workflow.{status_poll_interval, payment_poll_interval, max_polling_age, max_upload_attempts,
+      stale_upload_after, manual_review_after, reconciliation_max_pages, concurrent_declaration_guard,
+      default_page_size, max_page_size}`;
+    - `persistence.{driver, entity_manager, repository, statistics, transaction_manager, outbox}`;
+    - `messenger.{enabled, bus}`.
+
+  `docs/symfony.md` is the reference for their types and defaults.
+- Lock (`Bridge\Symfony\Lock\OperationLocks`, `urssaf_pn.<operation>.<scope>`): it is taken by the console commands
+  and the Messenger handlers only, never by a use case handler called directly. The scopes are:
+  - `identification.upload`: per tenant;
+  - `declaration.upload`: per tenant and declaration type;
+  - `submissions.sync` and `submissions.reconcile`: per tenant;
+  - `outbox.relay`: one lock for the whole relay (scope `*`).

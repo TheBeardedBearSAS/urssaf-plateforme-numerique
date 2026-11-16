@@ -62,3 +62,8 @@ headers, an array error payload whose codes are not published, and no quota (api
   `hashed_<sha256>`; the key stays deterministic and never contains the secret.
 - The gateway exceptions for 401/403 and the upload 5xx do not carry the parsed `ApiErrors` yet (port signatures of
   lot 3); the error bodies are still never logged.
+
+## Amendment (2026-11-16, lead-accepted, lot 8)
+
+- The relation between the `name` part and the `filename` of the `data` part is checked only when the opt-in contract tests are run against the sandbox (`make test-contract`, or the manual
+  `contract` job), and no test settles it: the test sends the same value in both. Until such a run, the point stays open in [docs/api-reference.md](../api-reference.md) §5.

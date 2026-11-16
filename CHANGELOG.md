@@ -60,6 +60,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 - README, API reference and roadmap: the package is implemented.
+- CI and tooling, aligned with the sibling packages: CI job `flex-endpoint` (builds the Flex endpoint of `recipe/`),
+  `phpunit.xml.dist` runs `unit,functional` by default (the contract suite only through `make test-contract`), the
+  SonarQube Cloud exception for the test classes whose methods come from the shared contract traits, and the
+  `symfony/cache` suggestion.
 - CI: verifiable quality proofs (Codecov, Stryker Dashboard, SonarQube Cloud, OpenSSF Scorecard; active once the
   repository is public), every GitHub Action pinned to a commit SHA and kept up to date by Dependabot, hadolint on the
   Dockerfile (`make hadolint`, part of `make ci`) with a non-root development image, and benchmarks with PHPBench

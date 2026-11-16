@@ -110,7 +110,7 @@ generated per run.
 | `URSSAF_TEST_API_CLIENT_ID`, `URSSAF_TEST_API_CLIENT_SECRET`, `URSSAF_TEST_API_PLATFORM_ID` | Optional: the technical test API ("Bac a sable", served from `api.urssaf.fr`); its tests are skipped when missing. |
 | `URSSAF_SANDBOX_UPLOAD` | `1` enables the upload test (off by default). |
 
-What they check, the first goals of the [roadmap](roadmap.md):
+What they check:
 
 - a token is obtained on the sandbox host (this settles the open point about the token host: a failure is only
   reported, there is no automatic retry against `https://api.urssaf.fr`);
@@ -132,4 +132,7 @@ make test-contract
 ```
 
 In GitHub Actions the `contract` job is manual (Actions > CI > Run workflow, `contract` checked) and reads the secrets
-(client ids and secrets) and the variables (platform ids, base URI, upload flag) of the `urssaf-sandbox` environment.
+(client ids and secrets) and the variables (platform ids, base URI) of the `urssaf-sandbox` environment. The upload test
+writes to the sandbox, so it runs only when `contract_upload` is also checked for that run (the job then sets
+`URSSAF_SANDBOX_UPLOAD=1`; the variable is never read from the environment of the repository). Locally,
+`make test-contract` still reads `URSSAF_SANDBOX_UPLOAD`.

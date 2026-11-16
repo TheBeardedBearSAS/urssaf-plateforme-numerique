@@ -23,8 +23,9 @@ Developed and maintained by [The Bearded Bear](https://the-bearded-bear.com).
 > application sends to URSSAF.
 
 **Status: implemented, not released yet (version 0.x to come).** The nine operations, the submission workflow, the
-standalone builder, the Symfony bundle and the Doctrine bridge are in place. The sandbox contract run that settles the
-open points of the API reference is still to do (see [docs/roadmap.md](docs/roadmap.md)). See the architecture
+standalone builder, the Symfony bundle and the Doctrine bridge are in place. The run of the contract tests against the real
+sandbox is still to do; the open points of the API reference stay open until URSSAF publishes them or that run settles
+them (see [docs/roadmap.md](docs/roadmap.md)). See the architecture
 decision records in [docs/adr/](docs/adr/README.md).
 
 ## Scope
@@ -292,8 +293,8 @@ php bin/console urssaf:pn:submissions:sync
 php bin/console urssaf:pn:submissions:reconcile
 ```
 
-Create the tables with your migrations (the package ships none): `php bin/console doctrine:migrations:diff` then
-`doctrine:migrations:migrate` ([docs/doctrine.md](docs/doctrine.md)). Without Doctrine, the `in_memory` persistence
+Create the tables with your migrations (the package ships none): `php bin/console doctrine:migrations:diff --em=urssaf_pn`
+(the dedicated entity manager configured above) then `doctrine:migrations:migrate` ([docs/doctrine.md](docs/doctrine.md)). Without Doctrine, the `in_memory` persistence
 loses every record when the process ends: give your own repository (`custom` driver), see
 [docs/symfony.md](docs/symfony.md).
 
@@ -331,7 +332,9 @@ These tests (`tests/Contract`, group `contract`) call the real "Echanges reels" 
 variables are set, the "Bac a sable" test API. They are skipped when the credentials are missing (a test that needs a
 platform id is skipped without it), and never run by `make ci`. The upload test is off unless `URSSAF_SANDBOX_UPLOAD=1`.
 The GitHub `contract` job is manual (Actions > CI > Run workflow, `contract` checked): it reads the secrets and
-variables of the `urssaf-sandbox` environment with the same names. See [docs/testing.md](docs/testing.md).
+variables of the `urssaf-sandbox` environment with the same names, except the upload: it runs only when the
+`contract_upload` box is checked for that run (the job sets `URSSAF_SANDBOX_UPLOAD=1` for it; no variable of that name
+is read). See [docs/testing.md](docs/testing.md).
 
 ## Versioning
 

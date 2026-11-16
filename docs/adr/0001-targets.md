@@ -29,3 +29,8 @@ and scope) and the Bac à sable test API (`https://api.urssaf.fr`, `/api-odspn-b
 
 - One package and one configuration value select the target; credentials stay per tenant ([ADR 0007](0007-tenant-model.md)).
 - The token cache key includes the target and the scope ([ADR 0002](0002-http-client-adaptations.md)).
+
+## Amendment (2026-11-16, lead-accepted, lot 8)
+
+- The token host of the sandbox and the behaviour of the test API (404 on the news feed) is checked only when the opt-in contract tests are run against the sandbox (`make test-contract`, or the manual
+  `contract` job). Until such a run, the point stays open in [docs/api-reference.md](../api-reference.md) §5.
