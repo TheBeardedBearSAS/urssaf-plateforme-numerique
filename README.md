@@ -22,8 +22,10 @@ Developed and maintained by [The Bearded Bear](https://the-bearded-bear.com).
 > process; the URSSAF documentation remains the authority on the API, and you remain responsible for the data your
 > application sends to URSSAF.
 
-> 🚧 **Skeleton — not implemented yet.** This repository currently contains the tooling and the specification only.
-> The implementation follows [docs/roadmap.md](docs/roadmap.md).
+**Status: implemented, not released yet (version 0.x to come).** The nine operations, the submission workflow, the
+standalone builder, the Symfony bundle and the Doctrine bridge are in place. The sandbox contract run that settles the
+open points of the API reference is still to do (see [docs/roadmap.md](docs/roadmap.md)). See the architecture
+decision records in [docs/adr/](docs/adr/README.md).
 
 ## Scope
 
@@ -50,16 +52,254 @@ OAuth2 client credentials (prior registration on the "portail Plateforme numéri
 ## Documentation
 
 - [docs/api-reference.md](docs/api-reference.md) — technical reference (single source of truth for the package).
-- [docs/roadmap.md](docs/roadmap.md) — planned architecture and order of work.
+- [docs/roadmap.md](docs/roadmap.md) — implementation status and what remains.
+- [docs/workflow.md](docs/workflow.md) — submission lifecycle, re-entry, polling, reconciliation of unknown uploads, declaration guard.
+- [docs/integration-events.md](docs/integration-events.md) — public integration events (`urssaf.pn.*`) and the outbox.
+- [docs/doctrine.md](docs/doctrine.md) — Doctrine persistence: tables, dedicated entity manager, concurrency, migrations.
+- [docs/standalone.md](docs/standalone.md) — wiring without the Symfony bundle: builder options, scheduling, manual wiring.
+- [docs/symfony.md](docs/symfony.md) — Symfony bundle: configuration reference, console commands, Messenger, Scheduler, locks, translations.
+- [docs/testing.md](docs/testing.md) — testing a host application with the in-memory simulated gateway.
 - [docs/adr/](docs/adr/README.md) — architecture decision records.
 - [docs/openapi/](docs/openapi/) — official OpenAPI contract(s) from the URSSAF API portal.
 - `docs/reference/` — official URSSAF documentation: not versioned (URSSAF documents), download it from the links in [docs/api-reference.md](docs/api-reference.md) into this local, git-ignored folder.
 - Catalogue pages: https://portailapi.urssaf.fr/fr/catalogue-api/prd/portail-pn-echanges-reels and
   https://portailapi.urssaf.fr/fr/catalogue-api/prd/portail-pn-bac-a-sable
 
+## Installation
+
+```bash
+composer require thebeardedbear/urssaf-plateforme-numerique
+```
+
+The package depends on PSR interfaces only: install a PSR-18 HTTP client and PSR-17 factories, for instance
+`composer require nyholm/psr7 guzzlehttp/guzzle` (or `symfony/http-client` and `nyholm/psr7`; with the Symfony bundle
+the default client is a dedicated Symfony HttpClient). With Symfony Flex, the recipe of the package registers the
+bundle, copies a commented `config/packages/urssaf_plateforme_numerique.yaml` (the simulated URSSAF platform in the
+`test` environment) and adds `URSSAF_PN_ENV`, `URSSAF_PN_CLIENT_ID`, `URSSAF_PN_CLIENT_SECRET` and
+`URSSAF_PN_PLATFORM_ID` to `.env`. The recipe is not published in
+[symfony/recipes-contrib](https://github.com/symfony/recipes-contrib) yet: until then, do these steps by hand (Quick
+start B below), or serve the recipe from your own Flex endpoint built by `bin/build-flex-endpoint` (see
+[docs/symfony.md](docs/symfony.md#symfony-flex-recipe)).
+
+With Doctrine, generate the tables of the package (it ships no migration, see
+[docs/doctrine.md](docs/doctrine.md#migrations)) and check the installation:
+
+```bash
+php bin/console doctrine:migrations:diff --em=urssaf_pn && php bin/console doctrine:migrations:migrate
+php bin/console urssaf:pn:check
+```
+
+## Architecture
+
+Hexagonal / DDD, the same as `thebeardedbear/urssaf-tiers-prestations` ([ADR 0000](docs/adr/0000-reference-architecture.md)).
+Layers are enforced by Deptrac (`deptrac.yaml`): the Domain depends on nothing, the Application on the Domain and the
+Contract, the Infrastructure on the Application and PSR only.
+
+```
+            +-----------------------------------------------+
+            | Bridge (Symfony, Doctrine)  - framework glue  |
+            +----------------------+------------------------+
+                                   |
+            +----------------------v------------------------+
+            | Infrastructure - HTTP gateway, OAuth2, wire   |
+            | encoding, token stores, clock, ids, in-memory |
+            +----------------------+------------------------+
+                                   | implements ports
+            +----------------------v------------------------+
+            | Application - commands, queries, handlers,    |
+            | ports (PlatformGateway, repositories...), DTOs|
+            +----------------------+------------------------+
+                                   |
+            +----------------------v------------------------+
+            | Domain - Submission aggregate, value objects, |
+            | rules (pure PHP, no PSR, no framework)        |
+            +-----------------------------------------------+
+```
+
+- **Domain**: the `Submission` aggregate and its lifecycle, value objects (periods, references, file names,
+  fingerprints), the live read models of identifications, declarations and news items, search criteria, domain events.
+- **Contract**: public, versioned integration events (`urssaf.pn.*`) relayed through the outbox.
+- **Application**: one `final readonly` handler per use case, ports implemented by the outer layers.
+- **Infrastructure**: `UrssafHttpGateway` (implements `PlatformGateway`), OAuth2 token provider, multipart and
+  download handling, adapters.
+- **Standalone** / **Testing**: framework-free builder and an in-memory simulated platform for host test suites.
+- **Bridge**: `Bridge\Symfony` (bundle, commands, Messenger, Lock, Scheduler) and `Bridge\Doctrine` (XML mapping, DBAL
+  types, repository with an atomic claim, optimistic locking, outbox, statistics; no `userId` / `userEmail` column).
+
+Decisions: [docs/adr/](docs/adr/README.md).
+
+## Quick start A: Standalone (framework-agnostic)
+
+The package sends the files you give it (it never generates, compresses nor validates the XML) and follows their
+asynchronous processing. This example needs a PSR-18 client and PSR-17 factories (here `nyholm/psr7` and Guzzle).
+Credentials come from environment variables, the platform identifier of each tenant from your own data.
+
+```php
+use GuzzleHttp\Client;
+use Nyholm\Psr7\Factory\Psr17Factory;
+use TheBeardedBear\UrssafPlateformeNumerique\Application\Command\SyncSubmissionStatuses;
+use TheBeardedBear\UrssafPlateformeNumerique\Application\Command\UploadIdentification;
+use TheBeardedBear\UrssafPlateformeNumerique\Application\Port\Credentials;
+use TheBeardedBear\UrssafPlateformeNumerique\Application\Query\DownloadReportFile;
+use TheBeardedBear\UrssafPlateformeNumerique\Application\Query\GetIdentification;
+use TheBeardedBear\UrssafPlateformeNumerique\Application\Query\GetSubmission;
+use TheBeardedBear\UrssafPlateformeNumerique\Domain\Platform\PlatformId;
+use TheBeardedBear\UrssafPlateformeNumerique\Domain\Shared\ExternalReference;
+use TheBeardedBear\UrssafPlateformeNumerique\Domain\Shared\TenantId;
+use TheBeardedBear\UrssafPlateformeNumerique\Domain\Submission\UrssafReference;
+use TheBeardedBear\UrssafPlateformeNumerique\Infrastructure\Credentials\InMemoryCredentialsProvider;
+use TheBeardedBear\UrssafPlateformeNumerique\Infrastructure\File\LocalFileSource;
+use TheBeardedBear\UrssafPlateformeNumerique\Infrastructure\Platform\InMemoryPlatformResolver;
+use TheBeardedBear\UrssafPlateformeNumerique\Infrastructure\Urssaf\ApiConfiguration;
+use TheBeardedBear\UrssafPlateformeNumerique\Infrastructure\Urssaf\Environment;
+use TheBeardedBear\UrssafPlateformeNumerique\Infrastructure\Urssaf\HttpTransport;
+use TheBeardedBear\UrssafPlateformeNumerique\Standalone\UrssafPlateformeNumeriqueBuilder;
+
+$factory = new Psr17Factory();
+$tenant = TenantId::fromString('tenant-1');
+
+$package = UrssafPlateformeNumeriqueBuilder::create(
+    new HttpTransport(new Client(), $factory, $factory),
+    new InMemoryCredentialsProvider([
+        'tenant-1' => Credentials::of((string) getenv('URSSAF_CLIENT_ID'), (string) getenv('URSSAF_CLIENT_SECRET')),
+    ]),
+    new InMemoryPlatformResolver(['tenant-1' => PlatformId::fromString('platform-1')]),
+    ApiConfiguration::forEnvironment(Environment::Sandbox),
+)->build();
+
+// 1. Upload: the submission is recorded locally ("uploading"), sent, then "in_process".
+$report = $package->uploadIdentification()(UploadIdentification::of(
+    $tenant,
+    ExternalReference::fromString('host-ref-1'),
+    LocalFileSource::fromPath('/path/to/DPID_202505_24001_000_20250428150823.xml.gz'),
+));
+
+// 2. Poll (from a cron job): every submission still in process is read at URSSAF.
+$package->syncSubmissionStatuses()(SyncSubmissionStatuses::forTenant($tenant, null));
+
+// 3. Read the local record, then download a report once it is accepted.
+$submission = $package->getSubmission()(new GetSubmission($tenant, $report->submissionId));
+if ($submission->state === 'accepted' && $submission->urssaf->urssafRef !== null) {
+    $reference = UrssafReference::fromString($submission->urssaf->urssafRef);
+    $identification = $package->getIdentification()(new GetIdentification($tenant, $reference));
+    $globalReport = $identification->reportFiles()->globalReport();
+    if ($globalReport !== null) {
+        $file = $package->downloadReportFile()(DownloadReportFile::identification($tenant, $reference, $globalReport));
+        $destination = fopen('report.bin', 'wb');
+        if ($destination !== false) {
+            $file->stream()->copyTo($destination); // an open resource; the caller closes it
+            fclose($destination);
+        }
+        $file->stream()->close();
+    }
+}
+```
+
+The other use cases are one accessor away (`uploadDeclaration()`, `searchDeclarations()`, `getNewsFeed()`,
+`reconcileUnknownSubmissions()`...). Every option of the builder, the scheduling and the manual wiring are described in
+[docs/standalone.md](docs/standalone.md); the lifecycle of a submission is in [docs/workflow.md](docs/workflow.md); test
+your integration with the simulator ([docs/testing.md](docs/testing.md)).
+
+## Quick start B: Symfony
+
+Once the recipe is published in symfony/recipes-contrib, Symfony Flex will register the bundle, copy the configuration
+and add the variables to `.env`:
+
+```sh
+composer require thebeardedbear/urssaf-plateforme-numerique
+```
+
+Without the recipe, register the bundle in `config/bundles.php`:
+
+```php
+return [
+    // ...
+    TheBeardedBear\UrssafPlateformeNumerique\Bridge\Symfony\UrssafPlateformeNumeriqueBundle::class => ['all' => true],
+];
+```
+
+Configure it in `config/packages/urssaf_plateforme_numerique.yaml` (every option is described in
+[docs/symfony.md](docs/symfony.md)):
+
+```yaml
+framework:
+    cache:
+        pools:
+            urssaf_pn.token_cache:              # the access tokens, shared by every process (web, workers, cron)
+                adapter: cache.adapter.redis
+                provider: '%env(REDIS_DSN)%'
+
+urssaf_plateforme_numerique:
+    environment: '%env(URSSAF_PN_ENV)%'         # sandbox | test_api | production
+    credentials:
+        default:                                # one entry per tenant (platform account)
+            client_id: '%env(URSSAF_PN_CLIENT_ID)%'
+            client_secret: '%env(URSSAF_PN_CLIENT_SECRET)%'
+            platform_id: '%env(URSSAF_PN_PLATFORM_ID)%'
+    token_store: { cache_pool: urssaf_pn.token_cache }
+    persistence: { driver: doctrine, entity_manager: urssaf_pn }   # a dedicated entity manager (docs/doctrine.md)
+
+when@test:
+    urssaf_plateforme_numerique:
+        gateway: { simulated: true }            # the in-memory URSSAF platform: nothing is sent to URSSAF
+```
+
+and set the variables in `.env.local` (never commit the secret):
+
+```dotenv
+URSSAF_PN_ENV=sandbox
+URSSAF_PN_CLIENT_ID=
+URSSAF_PN_CLIENT_SECRET=
+URSSAF_PN_PLATFORM_ID=
+```
+
+The use case handlers are public services, ready to be injected:
+
+```php
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Attribute\Route;
+use TheBeardedBear\UrssafPlateformeNumerique\Application\Command\UploadIdentification;
+use TheBeardedBear\UrssafPlateformeNumerique\Application\Command\UploadIdentificationHandler;
+use TheBeardedBear\UrssafPlateformeNumerique\Domain\Shared\ExternalReference;
+use TheBeardedBear\UrssafPlateformeNumerique\Domain\Shared\TenantId;
+use TheBeardedBear\UrssafPlateformeNumerique\Infrastructure\File\LocalFileSource;
+
+final class IdentificationController
+{
+    public function __construct(private readonly UploadIdentificationHandler $uploadIdentification) {}
+
+    #[Route('/identifications/{reference}', methods: ['PUT'])]
+    public function upload(string $reference): JsonResponse
+    {
+        $report = ($this->uploadIdentification)(UploadIdentification::of(
+            TenantId::fromString('default'),
+            ExternalReference::fromString($reference),
+            LocalFileSource::fromPath('/path/to/DPID_202505_24001_000_20250428150823.xml.gz'),
+        ));
+
+        return new JsonResponse(['outcome' => $report->outcome->value, 'state' => $report->state->value]);
+    }
+}
+```
+
+Check the installation, then run the polling and recovery commands from cron, or let the Symfony Scheduler do it
+(`scheduler: { enabled: true }`, then `messenger:consume scheduler_urssaf_pn`):
+
+```sh
+php bin/console urssaf:pn:check
+php bin/console urssaf:pn:identification:upload var/DPID_202505_24001_000_20250428150823.xml.gz --external-reference=host-ref-1
+php bin/console urssaf:pn:submissions:sync
+php bin/console urssaf:pn:submissions:reconcile
+```
+
+Create the tables with your migrations (the package ships none): `php bin/console doctrine:migrations:diff` then
+`doctrine:migrations:migrate` ([docs/doctrine.md](docs/doctrine.md)). Without Doctrine, the `in_memory` persistence
+loses every record when the process ends: give your own repository (`custom` driver), see
+[docs/symfony.md](docs/symfony.md).
+
 ## Requirements
 
-PHP 8.2+. Development only needs Docker: every `make` target runs in a container.
+PHP 8.2+. Symfony 6.4 / 7.x for the bundle (optional). Doctrine persistence (optional): `doctrine/orm` 3.5.3+ and `doctrine/dbal` 4.0+. Development only needs Docker: every `make` target runs in a container.
 
 ## Development
 
@@ -67,7 +307,7 @@ PHP 8.2+. Development only needs Docker: every `make` target runs in a container
 make install     # build the image, install dependencies
 make ci          # full quality gate: cs, rector, phpstan, mago, deptrac, composer checks, hadolint, guard, coverage, infection
 make test        # unit + functional tests
-make bench       # benchmarks (PHPBench, tests/Benchmark), added with the implementation
+make bench       # benchmarks (PHPBench, tests/Benchmark)
 make help        # every target
 ```
 

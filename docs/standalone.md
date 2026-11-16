@@ -70,8 +70,10 @@ if ($submission->state === 'accepted' && $submission->urssaf->urssafRef !== null
     if ($globalReport !== null) {
         $file = $package->downloadReportFile()(DownloadReportFile::identification($tenant, $reference, $globalReport));
         $destination = fopen('report.bin', 'wb');
-        $file->stream()->copyTo($destination); // an open resource; the caller closes it
-        fclose($destination);
+        if ($destination !== false) {
+            $file->stream()->copyTo($destination); // an open resource; the caller closes it
+            fclose($destination);
+        }
         $file->stream()->close();
     }
 }
