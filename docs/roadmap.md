@@ -59,10 +59,11 @@ Doctrine bridges, 100 % coverage and MSI). The decisions are in [docs/adr/](adr/
 ## Remaining
 
 1. Run the contract tests against the real sandbox (`api-edi`) and the test API, with real credentials and platform
-   id (see the README). First goals: settle the token host of the sandbox, the multipart `name` / `data` semantics, the
-   echo of the file name used by the reconciliation, the error codes, the time zone of `lastUpdateDate` and the
-   defaults of `page` / `size`; check that `news-feed` is absent on the test API; look for the endpoint behind the
-   orphan `UserIdentification*` schemas.
+   id (see the README). They cover the token host of the sandbox, the pagination headers, the 404 of an unknown reference,
+   the news feed on both targets (absent on the test API) and, with `URSSAF_SANDBOX_UPLOAD=1`, the echo of the uploaded
+   name used by the reconciliation. The multipart `name` / `data` semantics, the error codes, the time zone of
+   `lastUpdateDate`, the defaults of `page` / `size` and the endpoint behind the orphan `UserIdentification*` schemas have
+   no contract test: they need URSSAF's answer or a manual check during that run.
 2. Remove the open points from [api-reference.md](api-reference.md) section 5 as they are settled, and adjust the
    assumptions recorded in the ADRs (0001, 0002, 0003, 0006).
 3. First release (version 0.x), then publication of the Flex recipe in symfony/recipes-contrib.

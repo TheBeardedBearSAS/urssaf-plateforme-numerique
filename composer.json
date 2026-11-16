@@ -118,6 +118,7 @@
         "doctrine/doctrine-bundle": "Required for the Doctrine bridge",
         "doctrine/orm": "Required for the Doctrine bridge",
         "nyholm/psr7": "PSR-17 factories for the HTTP gateway and the Symfony bundle (any PSR-17 / PSR-18 implementation works)",
+        "symfony/cache": "PSR-6 / PSR-16 pool for the OAuth2 token cache (Psr6TokenStore, Psr16TokenStore)",
         "symfony/config": "Required by the Symfony bridge (bundle configuration)",
         "symfony/console": "Provides the console commands of the Symfony bundle (urssaf:pn:*)",
         "symfony/dependency-injection": "Required by the Symfony bridge",

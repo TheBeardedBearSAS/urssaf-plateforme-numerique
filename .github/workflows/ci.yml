@@ -8,7 +8,11 @@ on:
   workflow_dispatch:
     inputs:
       contract:
-        description: Run the contract tests against the URSSAF sandbox (needs repository secrets)
+        description: Run the contract tests against the URSSAF sandbox (needs the urssaf-sandbox environment)
+        type: boolean
+        default: false
+      contract_upload:
+        description: Also run the contract upload test, which sends a fictitious file to the sandbox
         type: boolean
         default: false
 
@@ -86,6 +90,21 @@ jobs:
           docker run --rm -v "$PWD":/repo:ro -w /repo
           hadolint/hadolint:v2.15.1@sha256:32dac94127fd60b7b7e3fbfc65e1383b9b5e25c9bfd7b8536de7a539fe68a12d
           hadolint docker/php/Dockerfile
+
+  flex-endpoint:
+    # Builds the Flex endpoint of the recipe (recipe/) to check it; the recipe itself is published in symfony/recipes-contrib.
+    name: flex endpoint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup
+        with:
+          php-version: '8.4'
+      - run: bin/build-flex-endpoint var/flex-endpoint https://flex.invalid/urssaf-plateforme-numerique
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: flex-endpoint
+          path: var/flex-endpoint
 
   tests:
     name: tests (PHP ${{ matrix.php }}, ${{ matrix.dependencies }})
@@ -228,10 +247,12 @@ jobs:
             tools/phpbench/vendor/bin/phpbench run --report=urssaf --store --tag=current
           fi
 
-  # Manual only: Actions > CI > Run workflow > "contract". Secrets of the urssaf-sandbox environment:
+  # Manual only: Actions > CI > Run workflow > "contract" (and optionally "contract_upload"). Secrets of the urssaf-sandbox environment:
   # URSSAF_SANDBOX_CLIENT_ID and URSSAF_SANDBOX_CLIENT_SECRET (required), URSSAF_TEST_API_CLIENT_ID and
   # URSSAF_TEST_API_CLIENT_SECRET (optional, test API tests). Optional variables: URSSAF_SANDBOX_PLATFORM_ID,
-  # URSSAF_TEST_API_PLATFORM_ID, URSSAF_SANDBOX_BASE_URI and URSSAF_SANDBOX_UPLOAD (set to 1 to run the upload test).
+  # URSSAF_TEST_API_PLATFORM_ID, URSSAF_SANDBOX_BASE_URI.
+  # The upload test writes to the sandbox: it is a per-run choice (the "contract_upload" input sets URSSAF_SANDBOX_UPLOAD=1
+  # for that run only), never a persisted variable, so a routine read-only run cannot write.
   contract:
     name: contract (URSSAF sandbox)
     if: github.event_name == 'workflow_dispatch' && inputs.contract
@@ -249,7 +270,7 @@ jobs:
           URSSAF_SANDBOX_CLIENT_SECRET: ${{ secrets.URSSAF_SANDBOX_CLIENT_SECRET }}
           URSSAF_SANDBOX_PLATFORM_ID: ${{ vars.URSSAF_SANDBOX_PLATFORM_ID }}
           URSSAF_SANDBOX_BASE_URI: ${{ vars.URSSAF_SANDBOX_BASE_URI }}
-          URSSAF_SANDBOX_UPLOAD: ${{ vars.URSSAF_SANDBOX_UPLOAD }}
+          URSSAF_SANDBOX_UPLOAD: ${{ inputs.contract_upload && '1' || '' }}
           URSSAF_TEST_API_CLIENT_ID: ${{ secrets.URSSAF_TEST_API_CLIENT_ID }}
           URSSAF_TEST_API_CLIENT_SECRET: ${{ secrets.URSSAF_TEST_API_CLIENT_SECRET }}
           URSSAF_TEST_API_PLATFORM_ID: ${{ vars.URSSAF_TEST_API_PLATFORM_ID }}

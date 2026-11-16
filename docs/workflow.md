@@ -64,7 +64,10 @@ before the upload ([ADR 0004](adr/0004-submission-lifecycle.md)).
 
 The upload handlers return an `UploadReport` whose `outcome` is `uploaded`, `replayed`, `not_claimed`, `rejected` (with
 the `ApiErrors`), `invalid_credentials`, `outcome_unknown` or `exhausted`. A retryable failure moves the record to
-`error` and is rethrown as `RetryableUrssafFailure` (with the `Retry-After` delay when known).
+`error` and is rethrown as `RetryableUrssafFailure` (with the `Retry-After` delay when known), except an
+`UrssafUnavailable` whose call may have reached URSSAF, which is treated as `outcome_unknown`. Any other failure of the
+call is rethrown as is, after the record has left `uploading`: another package exception (`UrssafException`, nothing
+was processed) moves it to `error`; any other `Throwable` (the send is uncertain) moves it to `outcome_unknown`.
 
 ## Polling
 
@@ -77,7 +80,9 @@ with a `limit`; `SyncAllSubmissionStatuses` for every tenant) reads at URSSAF, l
   `INTERLOCUTION` and `DECLARED` / `PROCESSING` round trips.
 
 Identifications are not polled once `accepted` or `rejected`. A submission is not polled again before the interval of
-its phase, nor after `maxPollingAge()` since its creation. These values are package choices, not URSSAF rules
+its phase, nor after `maxPollingAge()` since its creation. A poll answered by a 404 (`not_found`) or a 400 (`failed`)
+only records the poll instant (`Submission::recordPollWithoutAnswer()`: no event, state and snapshot kept), so that the
+other submissions are polled first next time. These values are package choices, not URSSAF rules
 (`Application\Policy\WorkflowPolicy`, configurable):
 
 | Policy | Default | Bundle key |
@@ -105,15 +110,19 @@ The uploads have no idempotency key, so they are **never resent automatically** 
   rate-limit refusal, a token failure, the replay after a 401). The record goes `error`, then may be reclaimed.
 - A transport error, any 5xx, or a 2xx answer that cannot be read (invalid JSON, missing or empty `urssafRef`) throws
   `OutcomeUnknown`: the record moves to `outcome_unknown`. A submission left `uploading` for at least `staleUploadAfter`
-  (a process died between the claim and the answer) moves to `outcome_unknown` too.
+  (a process died between the claim and the answer, measured from its last update) moves to `outcome_unknown` too, with a
+  conditional claim (stored state still `uploading`); when the upload committed meanwhile, the record is left alone
+  (report item `superseded`) and not searched.
 - `ReconcileUnknownSubmissions` searches the matching operation (identifications, or declarations filtered by `type`),
   sorted `lastUpdateDate:DESC`, `size` 500, up to `reconciliationMaxPages` pages, and adopts the only result whose file
   name equals the uploaded name and whose `urssafRef` is not already known locally for the tenant: the submission
   moves to `in_process` with that reference and is then polled normally. That URSSAF echoes the uploaded `name`
   verbatim in the file name field is not published and is checked by the contract tests
   ([api-reference.md](api-reference.md) section 5).
-- Zero or several candidates leave the submission `outcome_unknown`; past `manualReviewAfter` it is reported as needing
-  a manual review (`TenantOverview::needingAttention()` of `GetWorkflowOverview`, `urssaf:pn:status`). An operator checks on the URSSAF
+- Zero or several candidates leave the submission `outcome_unknown`; past `manualReviewAfter` (since its last update) the
+  reconciliation reports it as `manual_review`. `TenantOverview::needingAttention()` of `GetWorkflowOverview`
+  (`urssaf:pn:status`) counts every `outcome_unknown`, `error` and `invalid_credentials` record, whatever its age or
+  attempts (the statistics port only counts by state). An operator checks on the URSSAF
   side and records the result with `ResolveSubmissionOutcome` (`urssaf:pn:submission:resolve`): received (with its
   `urssafRef`) moves to `in_process`, not received moves to `not_received`, after which the host may upload the same
   file again.
@@ -129,8 +138,8 @@ URSSAF accepts (`200`) a second file of a type already in process, then rejects 
 `DECLARATION` and one `REGULARISATION` can be in process at a time ([ADR 0008](adr/0008-concurrent-declaration-guard.md)).
 `UploadDeclaration` refuses locally, with an `InvariantViolation` `submission.declaration_in_process`, an upload of a
 type while another submission of the same tenant and type is `uploading`, `in_process` or `outcome_unknown`. The check
-runs inside the claim transaction; the Symfony bridge also serialises uploads per tenant and type with a non-blocking
-lock. Opt-out: `WorkflowPolicy::withoutConcurrentDeclarationGuard()` (bundle `workflow.concurrent_declaration_guard:
+runs inside the claim transaction; the console command `urssaf:pn:declaration:upload` also takes a non-blocking lock
+per tenant and type (a handler called directly takes none). Opt-out: `WorkflowPolicy::withoutConcurrentDeclarationGuard()` (bundle `workflow.concurrent_declaration_guard:
 false`). Identifications are not guarded ("should" is not a rule).
 
 ## Events, outbox and scheduling
@@ -142,9 +151,11 @@ false`). Identifications are not guarded ("should" is not a rule).
 - No scheduler runs on its own: call `SyncAllSubmissionStatuses` (or `SyncSubmissionStatuses` per tenant),
   `ReconcileUnknownSubmissions` and `RelayOutbox` from a cron job ([standalone.md](standalone.md)), the console commands
   `urssaf:pn:submissions:sync`, `urssaf:pn:submissions:reconcile` and `urssaf:pn:outbox:relay`, or the Symfony Scheduler
-  schedule `urssaf_pn` ([symfony.md](symfony.md#scheduler)).
+  schedule `urssaf_pn`, which runs the synchronisation and the reconciliation, not the relay
+  ([symfony.md](symfony.md#scheduler)).
 - Messenger: `SyncTenantSubmissionsMessage` and `ReconcileTenantSubmissionsMessage` carry the tenant id only and are
   safe to retry. There is no upload message. `OutcomeUnknown` and every non-retryable package exception are
   unrecoverable; `RetryableException` is recoverable with its delay ([symfony.md](symfony.md#messenger)).
-- Two runs of the same use case must not overlap: the bundle takes a non-blocking lock per tenant (and declaration type
-  for uploads); without it, the atomic claims keep them safe but wasteful.
+- Two runs of the same use case should not overlap: the console commands and the Messenger handlers of the bundle take a
+  non-blocking lock per tenant (and declaration type for a declaration upload; one lock for the outbox relay). A handler
+  called directly takes none; the atomic claims keep overlapping runs safe but wasteful.

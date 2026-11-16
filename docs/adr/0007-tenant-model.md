@@ -19,3 +19,9 @@ The reference is multi-tenant (`TenantId`, `CredentialsProvider::forTenant()`). 
 
 - Two platforms behind the same credentials are two tenants with the same `client_id`; the token cache is shared
   through the cache key ([ADR 0002](0002-http-client-adaptations.md)).
+
+## Amendment (2026-11-16, lead-accepted, lot 8)
+
+- The bundle configuration is `credentials.<tenant>.{client_id, client_secret, platform_id}`, keyed by tenant id; the
+  decision above wrote `tenants.<name>.…`, which is not the key. `tenants` is a plain list of tenant ids for the
+  commands that cannot discover them, and defaults to the keys of `credentials`.

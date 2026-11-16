@@ -24,8 +24,9 @@ schemas** (`"schema": {}`, `components.schemas` is `{}`, examples are Jackson `J
 the real examples. Paths, operation ids, parameters, descriptions and response codes are identical in JSON and YAML
 (checked programmatically); the other differences are listed in §5.
 
-> Status: implemented. The package follows this reference; the open points of section 5 are settled by the sandbox
-> contract tests still to run (see [roadmap.md](roadmap.md)).
+> Status: implemented. The package follows this reference; the open points of section 5 stay open until URSSAF
+> publishes them or a sandbox run settles them (the opt-in contract tests cover some of them, see
+> [roadmap.md](roadmap.md)).
 
 > **Source and rights.** The specification, the field names, the codes and the official JSON examples quoted here come
 > from the URSSAF documents listed above and remain URSSAF's property. They are reproduced only so the package can
@@ -414,7 +415,8 @@ in section 5.
    parse nor validate** DPID / DPDE / DPRE XML and does not check the naming convention. The multipart body has two
    parts: `name` (the file name) and `data` (the content, `filename` = the same name, `application/octet-stream`),
    built with PSR-17 streams in a `php://temp` stream. The relation between `name` and the `filename` of `data` is
-   checked by the contract tests (section 5). [ADR 0002](adr/0002-http-client-adaptations.md),
+   not published (section 5): the opt-in upload contract test only shows whether an upload with both set to the same
+   name is accepted and found by that name. [ADR 0002](adr/0002-http-client-adaptations.md),
    [ADR 0005](adr/0005-files.md).
 4. **`type` is explicit.** `DeclarationType` is a required argument of the declaration upload (`UploadDeclaration`); no
    inference from the file prefix.
@@ -426,7 +428,7 @@ in section 5.
    ([ADR 0003](adr/0003-unknown-upload-outcome.md)); a second declaration of a type already in process is refused
    locally ([ADR 0008](adr/0008-concurrent-declaration-guard.md)).
 6. **Pagination.** Searches return a `Page` (items + total pages/count/current/per-page parsed from the `UCN-*`
-   headers; headers tolerated as absent since declared as strings). `size` is capped client-side at 500.
+   headers; headers tolerated as absent since declared as strings). `size` is validated client-side between 1 and 500 (`InvalidValue` outside).
 7. **Dates.** `start_date` / `end_date` are sent as `YYYY-MM-DD`. `period` is a `YYYY-MM` value object (a single value on
    identifications, a list on declarations); on the wire the raw string is kept next to the parsed value, so an
    unexpected format never breaks a read. `lastUpdateDate`: an explicit offset is honoured, a missing one is interpreted
@@ -436,7 +438,8 @@ in section 5.
    (`DecimalNumber`). [ADR 0006](adr/0006-numbers-and-dates.md).
 8. **Downloads.** Returned as a stream/binary value, never decoded; no assumption on file name or inner format.
 9. **Errors.** Array payload parsed into a list of `{code, message, description}`; unknown codes preserved raw. HTTP
-   429/503 handled generically (Retry-After) even though not declared.
+   429 and 5xx handled generically (Retry-After) even though not declared; on an upload a 5xx is an unknown outcome
+   ([ADR 0003](adr/0003-unknown-upload-outcome.md)).
 10. **`Accept-Language`.** Configurable, default `FR` (the API default), sent in upper case as in the contract.
 11. **Persistence.** The `Submission` aggregate keeps the `urssafRef`, the kind, the declaration type, the file name, a
     content fingerprint, the local state and the last polled `status` / `paymentStatus`; the file content is never
@@ -496,8 +499,10 @@ Unknowns (**not published**):
 
 ### How the package handles each open point
 
-Only facts from the code and the ADRs; the sandbox contract tests (`make test-contract`, see the README) are what will
-settle them.
+Only facts from the code and the ADRs. Each point stays open until URSSAF publishes it or a sandbox run settles it; the
+opt-in contract tests (`make test-contract`, see the README) cover the token host of the sandbox, the pagination
+headers, the 404 of an unknown reference, the news feed on both targets and, with `URSSAF_SANDBOX_UPLOAD=1`, the echo of
+the uploaded name by the search. The other points have no contract test.
 
 | Open point | Handling in the package | Where |
 |---|---|---|
@@ -505,18 +510,18 @@ settle them.
 | Credentials and data shared between the test API and `api-edi` | Nothing is assumed: one tenant is one set of credentials and one `platformId`; the target is chosen per configuration, and the contract tests accept a separate credential set for the test API. | ADR 0001, ADR 0007 |
 | `name` part vs file name of the `data` part | Both carry the same name (`name` = file name, `data` `filename` = same name, `application/octet-stream`). Assumption, one-line change when settled. | ADR 0002 |
 | File name echoed by the search (`identificationFileName`, `declarationFileName`) | The reconciliation of an unknown upload relies on it: it adopts the only result whose file name equals the uploaded name. When URSSAF does not echo it, zero candidates are found and the submission stays `outcome_unknown` for an operator. | ADR 0003 |
-| Quotas, 429 / 503 and timeouts | Not declared but handled generically: 429 and 5xx are `UrssafUnavailable` with the `Retry-After` seconds when present; optional in-process `SlidingWindowRateLimiter` (bundle `rate_limiter`), none by default; the HTTP timeout is that of the PSR-18 client (bundle `http_timeout`, default 15 s). | ADR 0002 |
+| Quotas, 429 / 503 and timeouts | Not declared but handled generically: 429, and 5xx on a read, are `UrssafUnavailable` with the `Retry-After` seconds when present; a 5xx on an upload is `OutcomeUnknown` (ADR 0003); optional in-process `SlidingWindowRateLimiter` (bundle `rate_limiter`), none by default; the HTTP timeout is that of the PSR-18 client (bundle `http_timeout`, default 15 s). | ADR 0002 |
 | Error codes (`Error.code`), 401 / 403 payload shape | Error bodies are parsed leniently into `ApiErrors` (a list, a single object or an unreadable body); codes are kept raw and never interpreted; 401 invalidates the token and replays once, then `UrssafAuthenticationFailed`; 403 is `UrssafAuthenticationFailed`. | ADR 0002 |
 | Defaults of `page` / `size`, default sort, sortable fields | `page` and `size` are optional and not sent when not given; `size` is validated between 1 and 500; `sort` is a free `field:ASC` / `field:DESC` (field restricted to letters, digits, `_` and `.`), repeated as a query array. The reconciliation sorts `lastUpdateDate:DESC` (a key shown by the contract examples). | ADR 0002, ADR 0003 |
 | `search` semantics | Passed verbatim (at most 255 characters), never logged; no local interpretation. | ADR 0009 |
 | Time zone of `lastUpdateDate`, `uploadDate`, `treatmentDate` | Explicit offset honoured; a missing one is interpreted in `api_timezone` (default `Europe/Paris`, configurable); `uploadDate` / `treatmentDate` keep the raw string next to a best-effort parse. | ADR 0006 |
 | `UCN-*` pagination headers declared as strings | Parsed as non-negative integers; absent or non-numeric gives `null`. | ADR 0002 |
-| Formats of `platformId`, `urssafRef`, `fileRef`, `idNews` | `platformId` is kept verbatim (non-empty, at most 64 characters, no `/`); the other identifiers are opaque strings with no format check. | ADR 0007 |
-| DPID / DPDE / DPRE naming, XSDs, maximum file size, `Content-Type` of `data` | No check: the package transports the file it is given; the content type of the `data` part is `application/octet-stream`. A check can be added behind an opt-in once published. | ADR 0005, ADR 0002 |
+| Formats of `platformId`, `urssafRef`, `fileRef`, `idNews` | `platformId` is kept verbatim (non-empty, at most 64 characters, no `/`); `urssafRef` and `fileRef` are opaque strings with no format check beyond non-empty, at most 255 characters and no `/` (they are path segments); `idNews` is kept as read. | ADR 0007; `UrssafReference`, `FileReference` |
+| DPID / DPDE / DPRE naming, XSDs, maximum file size, `Content-Type` of `data` | No check of the naming convention or the content: the package transports the file it is given (the file name is only checked to be non-empty, at most 255 characters, without control characters nor `"`, since it is written in the multipart headers); the content type of the `data` part is `application/octet-stream`. A check can be added behind an opt-in once published. | ADR 0005, ADR 0002 |
 | Content and name of report files; unit and currency of counters | Downloads are streamed, never decoded, stored nor logged, with `Content-Type` and `Content-Disposition` exposed raw; counters are decimal strings with no unit. | ADR 0005, ADR 0006 |
 | `status` / `paymentStatus` values extended later | Unknown values are kept raw; an unknown `status` keeps the submission `in_process` (still polled), an unknown `paymentStatus` keeps the declaration unsettled. | ADR 0004 |
 | News feed absent on the test API | Local `OperationNotSupported`; the contract tests check the real 404. | ADR 0001 |
-| Orphan `UserIdentification*` schemas | Not implemented; the contract tests look for the endpoint behind them. | section 3.6 |
+| Orphan `UserIdentification*` schemas | Not implemented; no contract test covers them (no endpoint is published). | section 3.6 |
 | Several submissions of the same period for identifications | No local guard ("should" is not a rule); declarations are guarded locally. | ADR 0008 |
 
 Discrepancies found while implementing: none beyond those listed above.

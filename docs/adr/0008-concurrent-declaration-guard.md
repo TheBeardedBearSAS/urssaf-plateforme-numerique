@@ -21,3 +21,9 @@ says one file per period "should" be submitted.
 ## Consequences
 
 - A predictable asynchronous rejection is turned into an immediate, explained refusal.
+
+## Amendment (2026-11-16, lead-accepted, lot 8)
+
+- Only the console upload commands (`urssaf:pn:identification:upload`, `urssaf:pn:declaration:upload`) take the lock per
+  tenant and type. A handler called directly (standalone, controller) takes none: the in-transaction check above is
+  then the only local guard.

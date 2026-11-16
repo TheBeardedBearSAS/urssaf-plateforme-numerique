@@ -284,14 +284,15 @@ Run a single scheduler worker (or enable the lock): two workers of the same sche
 
 Two crons that overlap, a cron racing a Messenger worker, or two workers handling the same tenant could poll or
 reconcile the same submissions at the same time. The atomic claims keep that safe but wasteful. When `symfony/lock` is
-installed, every upload, synchronisation and reconciliation (command or Messenger handler) takes a **non-blocking**
-lock named `urssaf_pn.<operation>.<scope>` before it works, and releases it afterwards:
+installed, every upload command, synchronisation and reconciliation (command or Messenger handler) and the outbox relay
+take a **non-blocking** lock named `urssaf_pn.<operation>.<scope>` before they work, and release it afterwards:
 
 | Operation | Used by | Scope |
 |---|---|---|
 | uploads | `urssaf:pn:identification:upload`, `urssaf:pn:declaration:upload` | tenant, and declaration type for a declaration ([ADR 0008](adr/0008-concurrent-declaration-guard.md)) |
 | synchronisation | `urssaf:pn:submissions:sync`, `SyncTenantSubmissionsMessage` | tenant |
 | reconciliation | `urssaf:pn:submissions:reconcile`, `ReconcileTenantSubmissionsMessage` | tenant |
+| outbox relay | `urssaf:pn:outbox:relay` | none: one global lock, scope `*` |
 
 When the lock is already held: a **command** prints that the operation is already running and exits with `0` (the run
 that holds the lock does the work); a **Messenger handler** throws `RecoverableMessageHandlingException` with a 30 s

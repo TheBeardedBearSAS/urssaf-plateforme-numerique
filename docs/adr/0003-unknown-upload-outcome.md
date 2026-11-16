@@ -39,3 +39,32 @@ it may be rejected because only one file per period "should" be submitted. Unlik
 
 - The package never produces a duplicate submission by itself.
 - Reconciliation reads at most `reconciliationMaxPages × 500` items per submission and run; the search cost is bounded.
+
+## Amendment (2026-11-16, lead-accepted, lots 5-8)
+
+- Monitoring: `TenantOverview::needingAttention()` (summed over the tenants by `WorkflowOverview::needingAttention()`,
+  both returned by `GetWorkflowOverview` and printed by `urssaf:pn:status`) counts **every** `outcome_unknown`,
+  `error` and `invalid_credentials` record, including the transient ones still being retried or reconciled. The
+  `WorkflowStatistics` port only counts the records by tenant and state, with no attempts nor age. The age-based signal
+  of `manualReviewAfter()` is the item `manual_review` of the reconciliation report. It is measured from the last
+  update of the record, like `staleUploadAfter()`.
+- Upload failures outside the handled cases (`SubmissionUploader`):
+  - an `UrssafUnavailable` whose call may have reached URSSAF (`mayHaveReachedUrssaf()`) is treated as
+    `OutcomeUnknown`, whatever the gateway raised;
+  - any other `UrssafException` (an answer the contract does not describe, such as `UnexpectedUrssafResponse`:
+    nothing was processed) moves the record to `error` and is rethrown unchanged;
+  - any other `Throwable` (the send is uncertain) moves the record to `outcome_unknown` and is rethrown unchanged.
+
+  No path leaves the record `uploading`, which would hold the declaration slot ([ADR 0008](0008-concurrent-declaration-guard.md)).
+- The stale-upload move is a conditional claim. The reconciliation applies `markOutcomeUnknown()`, then
+  `SubmissionRepository::claim($stale, SubmissionState::Uploading)` in its own transaction, so the change is saved
+  only while the stored state is still `uploading`. When the claim is lost (the slow upload committed meanwhile),
+  nothing is recorded and its events are dropped. The record is then reported as the reconcile item `superseded` and
+  is not searched. The items of the reconciliation report are `adopted`, `unmatched`, `ambiguous`, `manual_review`,
+  `in_flight` (uploading, not stale yet), `superseded`, `failed` (search refused with 400, the run goes on) and
+  `invalid_credentials` (the run stops).
+
+## Amendment (2026-11-16, lead-accepted, lot 8)
+
+- The echo of the uploaded file name by the search is checked only when the opt-in contract tests are run against the sandbox (`make test-contract`, or the manual
+  `contract` job): the upload test that checks it is opt-in (`URSSAF_SANDBOX_UPLOAD=1`). Until such a run, the point stays open in [docs/api-reference.md](../api-reference.md) §5.

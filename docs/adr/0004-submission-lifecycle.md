@@ -59,3 +59,18 @@ of files waiting to be sent.
 - Unique constraint `(tenant, external_reference)`; the claim is one conditional update.
 - A host that loses the file before an `error` cannot retry from the package; it keeps its own copy.
 - No `RequeueAfterInvalidCredentials` command: re-entry by the host covers it, since the content is not stored.
+
+## Amendment (2026-11-16, lead-accepted, lots 5-8)
+
+- A poll that URSSAF does not answer with a snapshot calls `Submission::recordPollWithoutAnswer()` (through
+  `SubmissionPoller`, in its own transaction). This covers a 404 (`UrssafResourceNotFound`, report item `not_found`)
+  and a 400 (`UrssafRequestRejected`, item `failed`) during `SyncSubmissionStatuses`. Only the last poll instant moves:
+  no event is recorded, and the state, the snapshot and the update instant are kept. Since the submissions are polled
+  least recently polled first, the next run polls the others before it, and one unanswerable submission cannot starve
+  them. It is still polled at its interval until `maxPollingAge()`. `RefreshSubmission` does not do this: its read
+  failures propagate.
+- The time of the last poll is the Domain value object `LastPoll` (`polledAt`, plus the raw `status` and
+  `paymentStatus` of the last answer, which an unanswered poll keeps). `Submission::needsPolling()` reads whether the
+  payment is settled from it. It is mapped as real columns by the Doctrine bridge
+  ([ADR 0011 amendment](0011-doctrine-bridge.md#amendment-2026-11-16-lead-accepted-lot-7)).
+- `maxPollingAge()` is counted from the creation of the record, that is the first claim. A reclaim does not reset it.

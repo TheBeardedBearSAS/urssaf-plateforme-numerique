@@ -124,11 +124,11 @@ doctrine:
     dbal:
         connections:
             default: { url: '%env(resolve:DATABASE_URL)%' }
-            urssaf:  { url: '%env(resolve:URSSAF_DATABASE_URL)%' }   # same database is fine, different connection
+            urssaf_pn: { url: '%env(resolve:URSSAF_DATABASE_URL)%' }   # same database is fine, different connection
     orm:
         entity_managers:
             default: { connection: default, mappings: { App: { type: attribute, dir: '%kernel.project_dir%/src/Entity', prefix: App\Entity } } }
-            urssaf:  { connection: urssaf, mappings: { UrssafPlateformeNumerique: { type: xml, is_bundle: false, dir: '<DoctrineIntegration::mappingDirectory()>', prefix: 'TheBeardedBear\UrssafPlateformeNumerique' } } }
+            urssaf_pn: { connection: urssaf_pn, mappings: { UrssafPlateformeNumerique: { type: xml, is_bundle: false, dir: '<DoctrineIntegration::mappingDirectory()>', prefix: 'TheBeardedBear\UrssafPlateformeNumerique' } } }
 ```
 
 When you must share the entity manager, flush your own changes before calling a package use case, and accept that the
@@ -152,8 +152,8 @@ The package ships **no migration**: the schema depends on your platform and on t
 your application:
 
 ```bash
-php bin/console doctrine:migrations:diff
-php bin/console doctrine:migrations:migrate
+php bin/console doctrine:migrations:diff --em=urssaf_pn
+php bin/console doctrine:migrations:migrate --em=urssaf_pn
 ```
 
 (or `doctrine:schema:update --dump-sql` for a quick look). Re-run `diff` after each upgrade of the package: the mapping
