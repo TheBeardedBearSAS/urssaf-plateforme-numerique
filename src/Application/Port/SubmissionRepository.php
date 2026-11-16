@@ -26,12 +26,15 @@ interface SubmissionRepository
      * Stores a new submission.
      *
      * @throws InvariantViolation "submission.duplicate_external_reference" when the tenant already has a submission
-     *                            with this external reference
+     *                            with this external reference, then "submission.duplicate_id" when a submission
+     *                            (of any tenant) already has this id
      */
     public function add(Submission $submission): void;
 
     /**
      * Stores the changes of an existing submission.
+     *
+     * @throws InvariantViolation `submission.concurrent_modification` when another process changed it meanwhile (ADR 0011)
      */
     public function save(Submission $submission): void;
 

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <!-- What a submission is, fixed at its creation. Its "id" is the identifier of the submission (column "id"): it is
+         not mapped twice, the SubmissionIdentityListener of the submission copies it once the row is loaded. -->
+    <embeddable name="TheBeardedBear\UrssafPlateformeNumerique\Domain\Submission\SubmissionIdentity">
+        <field name="tenantId" type="urssaf_pn_tenant_id" column="tenant_id" length="64"/>
+        <field name="platformId" type="urssaf_pn_platform_id" column="platform_id" length="64"/>
+        <field name="externalReference" type="urssaf_pn_external_reference" column="external_reference" length="64"/>
+        <field name="kind" type="string" column="kind" length="16" enum-type="TheBeardedBear\UrssafPlateformeNumerique\Domain\Submission\SubmissionKind"/>
+        <field name="declarationType" type="string" column="declaration_type" length="16" nullable="true" enum-type="TheBeardedBear\UrssafPlateformeNumerique\Domain\Submission\DeclarationType"/>
+        <field name="fileName" type="urssaf_pn_file_name" column="file_name" length="255"/>
+        <field name="fingerprint" type="urssaf_pn_content_fingerprint" column="fingerprint" length="64"/>
+    </embeddable>
+</doctrine-mapping>

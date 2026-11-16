@@ -28,5 +28,9 @@ return RectorConfig::configure()
         \Rector\PHPUnit\CodeQuality\Rector\Class_\PreferPHPUnitThisCallRector::class,
         // Keep static:: (late static binding) in tests, as required by Mago assertion-style.
         \Rector\CodeQuality\Rector\Class_\ConvertStaticToSelfRector::class => ['tests'],
+        // Doctrine optimistic-lock token, read and written by the ORM through reflection (ADR 0011).
+        \Rector\DeadCode\Rector\Property\RemoveUnusedPrivatePropertyRector::class => [
+            __DIR__ . '/src/Domain/Submission/Submission.php',
+        ],
     ])
     ->withImportNames(removeUnusedImports: true);

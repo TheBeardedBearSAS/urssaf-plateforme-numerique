@@ -58,6 +58,15 @@ parameters:
         final:
             classesNotRequiredToBeAbstractOrFinal:
                 - TheBeardedBear\UrssafPlateformeNumerique\Domain\Submission\Submission
+                - TheBeardedBear\UrssafPlateformeNumerique\Bridge\Doctrine\Entity\OutboxMessage
+
+    ignoreErrors:
+        # Doctrine optimistic-lock token, read and written by the ORM through reflection (ADR 0011): not a domain
+        # concept, so the aggregate exposes no accessor.
+        -
+            identifier: property.onlyWritten
+            paths:
+                - src/Domain/Submission/Submission.php
 
     shipmonkRules:
         enableAllRules: true

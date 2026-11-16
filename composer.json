@@ -111,6 +111,9 @@
         "symfony/messenger": "<6.4.3"
     },
     "suggest": {
+        "doctrine/dbal": "Required by the Doctrine bridge (custom types)",
+        "doctrine/doctrine-bundle": "Required for the Doctrine bridge",
+        "doctrine/orm": "Required for the Doctrine bridge",
         "nyholm/psr7": "PSR-17 factories for the HTTP gateway (any PSR-17 / PSR-18 implementation works)"
     },
     "autoload": {

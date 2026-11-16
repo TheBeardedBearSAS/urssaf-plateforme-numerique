@@ -62,7 +62,14 @@ class Submission
 
     private Instant $updatedAt;
 
-    private ?Instant $lastPolledAt = null;
+    private LastPoll $lastPoll;
+
+    /**
+     * Persistence concurrency token (optimistic lock of the Doctrine bridge, ADR 0011): read and written by the ORM
+     * through reflection, never by the domain. It is not a domain concept and has no accessor.
+     */
+    // @mago-expect analysis:unused-property Doctrine optimistic-lock token, read and written by the ORM through reflection.
+    private int $version = 1;
 
     /** @var list<DomainEvent> */
     private array $events = [];
@@ -73,6 +80,7 @@ class Submission
     ) {
         $this->id = $identity->id();
         $this->updatedAt = $createdAt;
+        $this->lastPoll = LastPoll::never();
     }
 
     /**
@@ -209,10 +217,10 @@ class Submission
     public function applySnapshot(SubmissionSnapshot $snapshot, Instant $now): void
     {
         $reference = $this->knownReference();
-        $previousRawPaymentStatus = $this->snapshot?->rawPaymentStatus();
+        $previousRawPaymentStatus = $this->lastPoll->rawPaymentStatus();
         $target = $this->state->afterPolledStatus($snapshot->status());
         $this->snapshot = $snapshot;
-        $this->lastPolledAt = $now;
+        $this->lastPoll = LastPoll::answered($snapshot, $now);
         if ($target !== $this->state) {
             $this->state = $this->state->transitionTo($target);
             $this->updatedAt = $now;
@@ -242,7 +250,7 @@ class Submission
     public function recordPollWithoutAnswer(Instant $now): void
     {
         $this->knownReference();
-        $this->lastPolledAt = $now;
+        $this->lastPoll = $this->lastPoll->unansweredAt($now);
     }
 
     /**
@@ -252,14 +260,14 @@ class Submission
      */
     public function needsPolling(Instant $now, PollingWindow $window): bool
     {
-        if (!$this->state->isKnownToUrssaf() || $window->isExpired($this->createdAt, $now) || $this->isPaymentSettled()) {
+        if (!$this->state->isKnownToUrssaf() || $window->isExpired($this->createdAt, $now) || $this->lastPoll->isPaymentSettled()) {
             return false;
         }
         if ($this->state === SubmissionState::InProcess) {
-            return $window->isStatusPollDue($this->lastPolledAt, $now);
+            return $window->isStatusPollDue($this->lastPolledAt(), $now);
         }
 
-        return $this->isDeclaration() && $window->isPaymentPollDue($this->lastPolledAt, $now);
+        return $this->isDeclaration() && $window->isPaymentPollDue($this->lastPolledAt(), $now);
     }
 
     /**
@@ -368,7 +376,7 @@ class Submission
 
     public function lastPolledAt(): ?Instant
     {
-        return $this->lastPolledAt;
+        return $this->lastPoll->polledAt();
     }
 
     /**
@@ -420,14 +428,6 @@ class Submission
     {
         $this->moveTo($target, $now);
         $this->events[] = new SubmissionUploadFailed($this->identity, $target, $now);
-    }
-
-    /**
-     * The last poll read ACCEPTED and PROCESSED (never polled: not settled).
-     */
-    private function isPaymentSettled(): bool
-    {
-        return $this->snapshot instanceof SubmissionSnapshot && $this->snapshot->isPaymentSettled();
     }
 
     private function isDeclaration(): bool
