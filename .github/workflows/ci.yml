@@ -228,8 +228,10 @@ jobs:
             tools/phpbench/vendor/bin/phpbench run --report=urssaf --store --tag=current
           fi
 
-  # Manual only: Actions > CI > Run workflow > "contract". Repository secrets URSSAF_SANDBOX_CLIENT_ID and
-  # URSSAF_SANDBOX_CLIENT_SECRET are required; URSSAF_SANDBOX_BASE_URI is an optional repository variable.
+  # Manual only: Actions > CI > Run workflow > "contract". Secrets of the urssaf-sandbox environment:
+  # URSSAF_SANDBOX_CLIENT_ID and URSSAF_SANDBOX_CLIENT_SECRET (required), URSSAF_TEST_API_CLIENT_ID and
+  # URSSAF_TEST_API_CLIENT_SECRET (optional, test API tests). Optional variables: URSSAF_SANDBOX_PLATFORM_ID,
+  # URSSAF_TEST_API_PLATFORM_ID, URSSAF_SANDBOX_BASE_URI and URSSAF_SANDBOX_UPLOAD (set to 1 to run the upload test).
   contract:
     name: contract (URSSAF sandbox)
     if: github.event_name == 'workflow_dispatch' && inputs.contract
@@ -245,4 +247,9 @@ jobs:
         env:
           URSSAF_SANDBOX_CLIENT_ID: ${{ secrets.URSSAF_SANDBOX_CLIENT_ID }}
           URSSAF_SANDBOX_CLIENT_SECRET: ${{ secrets.URSSAF_SANDBOX_CLIENT_SECRET }}
+          URSSAF_SANDBOX_PLATFORM_ID: ${{ vars.URSSAF_SANDBOX_PLATFORM_ID }}
           URSSAF_SANDBOX_BASE_URI: ${{ vars.URSSAF_SANDBOX_BASE_URI }}
+          URSSAF_SANDBOX_UPLOAD: ${{ vars.URSSAF_SANDBOX_UPLOAD }}
+          URSSAF_TEST_API_CLIENT_ID: ${{ secrets.URSSAF_TEST_API_CLIENT_ID }}
+          URSSAF_TEST_API_CLIENT_SECRET: ${{ secrets.URSSAF_TEST_API_CLIENT_SECRET }}
+          URSSAF_TEST_API_PLATFORM_ID: ${{ vars.URSSAF_TEST_API_PLATFORM_ID }}

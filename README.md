@@ -78,6 +78,21 @@ coverage report on Codecov, the full mutation report on the Stryker Dashboard, t
 OpenSSF Scorecard. The benchmarks (`tests/Benchmark`, PHPBench in `tools/phpbench`, out of the package dependencies)
 run on every pull request against the base commit, and the job fails on a regression of more than 20 %.
 
+### Contract tests against the sandbox
+
+```sh
+export URSSAF_SANDBOX_CLIENT_ID=... URSSAF_SANDBOX_CLIENT_SECRET=... URSSAF_SANDBOX_PLATFORM_ID=...
+# optional: URSSAF_SANDBOX_BASE_URI (host override), URSSAF_SANDBOX_UPLOAD=1 (opt-in upload of a fictitious file),
+#           URSSAF_TEST_API_CLIENT_ID, URSSAF_TEST_API_CLIENT_SECRET, URSSAF_TEST_API_PLATFORM_ID (technical test API)
+make test-contract
+```
+
+These tests (`tests/Contract`, group `contract`) call the real "Echanges reels" sandbox (`api-edi`) and, when its
+variables are set, the "Bac a sable" test API. They are skipped when the credentials are missing (a test that needs a
+platform id is skipped without it), and never run by `make ci`. The upload test is off unless `URSSAF_SANDBOX_UPLOAD=1`.
+The GitHub `contract` job is manual (Actions > CI > Run workflow, `contract` checked): it reads the secrets and
+variables of the `urssaf-sandbox` environment with the same names. See [docs/testing.md](docs/testing.md).
+
 ## Versioning
 
 Semantic Versioning. `SpecVersion::CURRENT` holds the version of the official URSSAF documentation implemented.
