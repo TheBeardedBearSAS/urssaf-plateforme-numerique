@@ -28,6 +28,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   and platform resolver, PSR-3 failure reporter, local and in-memory file sources, optional sliding-window rate
   limiter. Runtime requirements: `psr/http-client`, `psr/http-factory`, `psr/http-message`, `psr/log`,
   `psr/cache`, `psr/simple-cache`, `psr/event-dispatcher`, `psr/clock`, `ext-json`.
+- Application use cases: `UploadIdentification` / `UploadDeclaration` (fingerprint, idempotent re-entry, declaration
+  guard, unknown outcome), `SyncSubmissionStatuses`, `RefreshSubmission`, `ReconcileUnknownSubmissions` (search by
+  file name, ADR 0003), `ResolveSubmissionOutcome`, outbox relay and purge; live queries (get, search, download,
+  news feed) and local queries (submission, list, workflow overview); `UnitOfWork`, `WorkflowPolicy`.
 - Architecture decision records (`docs/adr/`): the reference architecture inherited from
   `thebeardedbear/urssaf-tiers-prestations` (ADR 0000) and the decisions specific to this API (ADR 0001 to 0013).
 - Project skeleton: Docker tooling, quality gates (`make ci`) and GitHub Actions CI, identical to the other URSSAF

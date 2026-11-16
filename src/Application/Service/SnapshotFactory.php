@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TheBeardedBear\UrssafPlateformeNumerique\Infrastructure\Urssaf\Wire;
+namespace TheBeardedBear\UrssafPlateformeNumerique\Application\Service;
 
 use TheBeardedBear\UrssafPlateformeNumerique\Domain\Declaration\DeclarationSubmission;
 use TheBeardedBear\UrssafPlateformeNumerique\Domain\Identification\IdentificationSubmission;
@@ -14,7 +14,7 @@ use TheBeardedBear\UrssafPlateformeNumerique\Domain\Submission\SubmissionSnapsho
  * Reduces a live read model to what is persisted after a poll: raw statuses, periods, report references, counters
  * keyed by their wire names and the last update date. The uploader (personal data, ADR 0009) is dropped.
  */
-final class SnapshotMapper
+final class SnapshotFactory
 {
     public static function fromIdentification(IdentificationSubmission $identification): SubmissionSnapshot
     {
