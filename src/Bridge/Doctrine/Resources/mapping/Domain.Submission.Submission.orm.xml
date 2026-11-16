@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <!-- Submission (ADR 0004, ADR 0011): every column a query filters or sorts on is a real column (state, kind,
+         declaration type, urssafRef, raw status and payment status, instants); the snapshot of the last poll and the
+         errors of a refused upload are JSON columns. Nothing personal is stored (ADR 0009: no userId / userEmail, no file
+         content). One submission per external reference in a tenant. "version" is the optimistic lock token of the
+         persistence layer. -->
+    <entity name="TheBeardedBear\UrssafPlateformeNumerique\Domain\Submission\Submission" table="urssaf_pn_submissions">
+        <unique-constraints>
+            <unique-constraint name="uniq_urssaf_pn_submission_external_reference" columns="tenant_id,external_reference"/>
+        </unique-constraints>
+        <indexes>
+            <index name="idx_urssaf_pn_submission_polling" columns="tenant_id,state,last_polled_at"/>
+            <index name="idx_urssaf_pn_submission_urssaf_ref" columns="tenant_id,urssaf_ref"/>
+            <index name="idx_urssaf_pn_submission_declaration_slot" columns="tenant_id,declaration_type,state"/>
+        </indexes>
+        <entity-listeners>
+            <entity-listener class="TheBeardedBear\UrssafPlateformeNumerique\Bridge\Doctrine\Listener\SubmissionIdentityListener">
+                <lifecycle-callback type="postLoad" method="postLoad"/>
+            </entity-listener>
+        </entity-listeners>
+        <id name="id" type="urssaf_pn_submission_id" column="id" length="64">
+            <generator strategy="NONE"/>
+        </id>
+        <field name="version" type="integer" version="true"/>
+        <embedded name="identity" class="TheBeardedBear\UrssafPlateformeNumerique\Domain\Submission\SubmissionIdentity" use-column-prefix="false"/>
+        <field name="state" type="string" column="state" length="32" enum-type="TheBeardedBear\UrssafPlateformeNumerique\Domain\Submission\SubmissionState"/>
+        <field name="attempts" type="integer" column="attempts"/>
+        <field name="urssafReference" type="urssaf_pn_urssaf_reference" column="urssaf_ref" length="255" nullable="true"/>
+        <field name="snapshot" type="urssaf_pn_submission_snapshot" column="snapshot" nullable="true"/>
+        <field name="errors" type="urssaf_pn_submission_errors" column="errors"/>
+        <field name="createdAt" type="urssaf_pn_instant" column="created_at"/>
+        <field name="updatedAt" type="urssaf_pn_instant" column="updated_at"/>
+        <embedded name="lastPoll" class="TheBeardedBear\UrssafPlateformeNumerique\Domain\Submission\LastPoll" use-column-prefix="false"/>
+    </entity>
+</doctrine-mapping>

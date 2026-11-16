@@ -25,3 +25,13 @@ The reference ships a Doctrine ORM 3 / DBAL 4 bridge with XML mapping, custom ty
 ## Consequences
 
 - Repository behaviour is proven by contract traits shared with the in-memory repository.
+
+## Amendment (2026-11-16, lead-accepted, lot 7)
+
+- The polled values that queries filter on (raw status, raw payment status, last poll instant) are grouped in the
+  Domain value object `LastPoll`, kept in sync with the snapshot by the aggregate and mapped as real columns.
+- The claim `UPDATE` also requires the version the reclaimed instance was read with
+  (`WHERE id = :id AND version = :read AND state = :expected`), so it never overwrites a concurrent change.
+- A failed flush (concurrent duplicate insert, lost optimistic lock) closes the ORM entity manager: the repository
+  still reports the matching `InvariantViolation`, and a long-running host resets the entity manager
+  (`docs/doctrine.md`).

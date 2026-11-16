@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TheBeardedBear\UrssafPlateformeNumerique\Standalone;
 
 use Closure;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use TheBeardedBear\UrssafPlateformeNumerique\Application\Policy\WorkflowPolicy;
 use TheBeardedBear\UrssafPlateformeNumerique\Application\Port\Clock;
@@ -23,6 +24,9 @@ use TheBeardedBear\UrssafPlateformeNumerique\Application\Port\WorkflowStatistics
 use TheBeardedBear\UrssafPlateformeNumerique\Application\Service\IgnoredFailures;
 use TheBeardedBear\UrssafPlateformeNumerique\Application\Service\IgnoredOutbox;
 use TheBeardedBear\UrssafPlateformeNumerique\Application\Service\UnitOfWork;
+use TheBeardedBear\UrssafPlateformeNumerique\Bridge\Doctrine\DoctrineTransactionManager;
+use TheBeardedBear\UrssafPlateformeNumerique\Bridge\Doctrine\Repository\DoctrineSubmissionRepository;
+use TheBeardedBear\UrssafPlateformeNumerique\Bridge\Doctrine\Repository\DoctrineWorkflowStatistics;
 use TheBeardedBear\UrssafPlateformeNumerique\Infrastructure\Event\NullEventPublisher;
 use TheBeardedBear\UrssafPlateformeNumerique\Infrastructure\Id\RandomUuidGenerator;
 use TheBeardedBear\UrssafPlateformeNumerique\Infrastructure\Id\SecureRandomBytes;
@@ -40,8 +44,8 @@ use TheBeardedBear\UrssafPlateformeNumerique\Infrastructure\Urssaf\UtcSystemCloc
 /**
  * Wires the package without a framework. Every "with" method returns a new builder.
  *
- * Defaults: in-memory repository and token store (tests and prototypes: give your own persistence and a shared token
- * store in production), the UTC system clock, random UUIDs, no event publisher, no outbox, the default workflow policy.
+ * Defaults: in-memory repository and token store (tests and prototypes: use withDoctrine() or your own persistence, and a
+ * shared token store, in production), the UTC system clock, random UUIDs, no event publisher, no outbox, the default workflow policy.
  *
  * One property and one "with" method per collaborator, hence the counts.
  *
@@ -163,6 +167,18 @@ final class UrssafPlateformeNumeriqueBuilder
             $builder->statistics = $statistics;
             $builder->transactions = $transactions;
         });
+    }
+
+    /**
+     * The Doctrine persistence of the package, on a dedicated entity manager (docs/doctrine.md).
+     */
+    public function withDoctrine(EntityManagerInterface $entityManager): self
+    {
+        return $this->withRepository(
+            new DoctrineSubmissionRepository($entityManager),
+            new DoctrineWorkflowStatistics($entityManager),
+            new DoctrineTransactionManager($entityManager),
+        );
     }
 
     /**

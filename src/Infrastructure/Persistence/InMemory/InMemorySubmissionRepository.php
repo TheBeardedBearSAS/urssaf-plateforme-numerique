@@ -47,6 +47,12 @@ final class InMemorySubmissionRepository implements SubmissionRepository
         return $this->selection()->copies();
     }
 
+    /**
+     * Refuses an external reference the tenant already has, then an id already stored in any tenant (a primary key, as
+     * in a database).
+     *
+     * @throws InvariantViolation "submission.duplicate_external_reference" or "submission.duplicate_id"
+     */
     #[Override]
     public function add(Submission $submission): void
     {
@@ -55,6 +61,13 @@ final class InMemorySubmissionRepository implements SubmissionRepository
                 'submission.duplicate_external_reference',
                 'A submission already exists for this external reference.',
                 ['external_reference' => $submission->externalReference()->value()],
+            );
+        }
+        if (\array_key_exists($submission->id()->value(), $this->submissions)) {
+            throw InvariantViolation::because(
+                'submission.duplicate_id',
+                'A submission already exists with this id.',
+                ['id' => $submission->id()->value()],
             );
         }
 

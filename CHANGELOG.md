@@ -36,6 +36,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   without a framework; in-memory URSSAF platform for host tests (`Testing\SimulatedPlatformGateway`,
   `docs/testing.md`); PHPBench benchmarks of the search validation, the query and multipart encoding and the decoding
   of the official payloads and of full 500-item search pages (`make bench`).
+- Doctrine ORM 3 / DBAL 4 bridge (`Bridge\Doctrine`, `docs/doctrine.md`): XML mapping, `urssaf_pn_*` types and
+  tables, submission repository with an atomic claim and optimistic concurrency, DBAL outbox, workflow statistics,
+  transaction manager, and `UrssafPlateformeNumeriqueBuilder::withDoctrine()`. No personal data column (ADR 0009,
+  ADR 0011).
 - Architecture decision records (`docs/adr/`): the reference architecture inherited from
   `thebeardedbear/urssaf-tiers-prestations` (ADR 0000) and the decisions specific to this API (ADR 0001 to 0013).
 - Project skeleton: Docker tooling, quality gates (`make ci`) and GitHub Actions CI, identical to the other URSSAF

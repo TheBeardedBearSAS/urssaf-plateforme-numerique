@@ -65,6 +65,19 @@ final class SubmissionBuilder
         return $submission;
     }
 
+    /**
+     * Polled at the instant, URSSAF having processed the file with the given raw status and payment status.
+     */
+    public static function processed(Submission $submission, string $status, ?string $paymentStatus, string $at): Submission
+    {
+        $submission->applySnapshot(
+            new SubmissionSnapshot($status, $paymentStatus, [], ReportFiles::none(), [], null),
+            Instant::fromIso8601($at),
+        );
+
+        return $submission;
+    }
+
     private static function start(
         string $id,
         string $tenant,
