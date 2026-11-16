@@ -52,7 +52,9 @@ final class NewsFeedCommandTest extends TestCase
 
     public function testTheOptionsAreDescribed(): void
     {
-        $definition = (new Application(Harness::boot()->kernel))->find(self::COMMAND)->getDefinition();
+        // Keep the harness alive while the command is inspected: releasing it restores the PHP handlers.
+        $harness = Harness::boot();
+        $definition = (new Application($harness->kernel))->find(self::COMMAND)->getDefinition();
 
         static::assertSame('Page number, from 1', $definition->getOption('page')->getDescription());
         static::assertSame('Page size, from 1 to 500', $definition->getOption('size')->getDescription());
