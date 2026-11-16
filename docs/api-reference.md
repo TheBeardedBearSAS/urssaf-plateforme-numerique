@@ -398,6 +398,9 @@ The Bac à sable YAML defines schemas used by **no** path of either contract: `U
 
 ## 4. Package decisions derived from the specification
 
+The decisions below are settled, with their rationale, in the architecture decision records of
+[docs/adr/](adr/README.md); this section keeps their summary.
+
 1. **Three targets, one resource model.** `Environment` must model real production, real sandbox (`api-edi`) and the
    test API ("bac à sable"). Each target carries host, base path and scope (§1). `Environment` today only has
    `Sandbox` / `Production` with `baseUri()`; it must be extended (e.g. a third case for the test API, whose

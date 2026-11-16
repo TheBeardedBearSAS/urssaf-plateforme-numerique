@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- Architecture decision records (`docs/adr/`): the reference architecture inherited from
+  `thebeardedbear/urssaf-tiers-prestations` (ADR 0000) and the decisions specific to this API (ADR 0001 to 0013).
 - Project skeleton: Docker tooling, quality gates (`make ci`) and GitHub Actions CI, identical to the other URSSAF
   packages.
 - Specification: official OpenAPI contracts (`docs/openapi/`), official documentation (links in `docs/api-reference.md`, local copy in the git-ignored `docs/reference/`), technical
@@ -28,6 +30,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - README: maintainer (The Bearded Bear), the other URSSAF packages and professional support; composer
   `authors` now points to https://the-bearded-bear.com.
+
+- Deptrac declares the `Contract`, `Testing` and `Standalone` layers of the reference architecture; PHPStan always
+  runs on PHP 8.2, the supported floor (`make ci PHP_VERSION=8.4` no longer fails on typed constants, ADR 0013);
+  `CONTRIBUTING.md` states that tests are mandatory.
 
 - The package is open source under the MIT license (previously proprietary). Added `CONTRIBUTING.md` and
   `SECURITY.md`, and a notice in the README stating that the package is unofficial and not affiliated with URSSAF.
