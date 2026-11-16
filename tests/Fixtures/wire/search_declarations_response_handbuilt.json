@@ -1,0 +1,44 @@
+[
+    {
+        "declarationFileRef": "cd48ba8a-3a7e-4b80-8e87-f14a5542c6cf",
+        "declarationFileName": "DPDE_202505_24001_000_20250428150823.xml.gz",
+        "declarationType": "DECLARATION",
+        "period": ["2025-05"],
+        "urssafRef": "unique-file-submission-id-12345",
+        "userId": "user-0001",
+        "userEmail": "uploader@example.com",
+        "status": "ACCEPTED",
+        "statusLabel": "File successfully Processed",
+        "paymentStatus": "DECLARED",
+        "paymentStatusLabel": "Transfer declared",
+        "lastUpdateDate": "2025-04-28T20:04:14",
+        "uploadDate": "2025-04-28T20:03:51",
+        "treatmentDate": "2025-04-28T20:04:14",
+        "globalReportRef": {
+            "name": "global_report.xml",
+            "fileId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        },
+        "statistics": {
+            "numberOfDeclaredUser": 12,
+            "totalRevenue": 15230.5,
+            "debitAmount": 3350.71,
+            "paymentAmount": 0,
+            "numberOfError": 0
+        }
+    },
+    {
+        "declarationFileRef": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+        "declarationFileName": "DPRE_202504_24001_000_20250328150823.xml.gz",
+        "declarationType": "REGULARISATION",
+        "period": ["2025-03", "2025-04"],
+        "urssafRef": "unique-file-submission-id-67890",
+        "userId": "user-0002",
+        "userEmail": "second.uploader@example.com",
+        "status": "IN_PROCESS",
+        "statusLabel": "File in process",
+        "paymentStatus": "NOT_INITIATED",
+        "paymentStatusLabel": "Payment not initiated",
+        "lastUpdateDate": "2025-03-28T10:00:00",
+        "uploadDate": "2025-03-28T09:59:30"
+    }
+]

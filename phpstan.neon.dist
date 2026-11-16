@@ -35,6 +35,8 @@ parameters:
                 - LogicException
                 - RuntimeException
                 - TheBeardedBear\UrssafPlateformeNumerique\Domain\Exception\DomainException
+                # Common properties of the public integration events (scalar, readonly, rebuilt by named arguments).
+                - TheBeardedBear\UrssafPlateformeNumerique\Contract\Event\IntegrationEvent
                 # Framework extension points without an interface alternative (bridges only).
                 - Doctrine\DBAL\Types\Type
                 - Symfony\Component\HttpKernel\Bundle\AbstractBundle

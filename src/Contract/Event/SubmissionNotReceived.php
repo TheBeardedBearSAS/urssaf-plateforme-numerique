@@ -1,0 +1,30 @@
+<?php
+
+declare(strict_types=1);
+
+namespace TheBeardedBear\UrssafPlateformeNumerique\Contract\Event;
+
+/**
+ * Reconciliation proved that URSSAF never received the upload: it may be uploaded again.
+ *
+ * Common submission fields: kind ("identification" or "declaration"), declarationType (null for an identification),
+ * fileName, urssafRef (null while URSSAF has not given one).
+ */
+final readonly class SubmissionNotReceived extends IntegrationEvent
+{
+    public const TYPE = 'urssaf.pn.submission.not_received';
+
+    public function __construct(
+        string $eventId,
+        string $occurredAt,
+        string $tenantId,
+        string $aggregateId,
+        string $externalReference,
+        public string $kind,
+        public ?string $declarationType,
+        public string $fileName,
+        public ?string $urssafRef,
+    ) {
+        parent::__construct($eventId, $occurredAt, $tenantId, $aggregateId, $externalReference);
+    }
+}
