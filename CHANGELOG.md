@@ -7,6 +7,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-16
+
+First release.
+
+### Upgrading
+
+- Driver `doctrine`: generate and run the migration for the `urssaf_pn_*` tables (`doctrine:migrations:diff
+  --em=urssaf_pn`, `doctrine:migrations:migrate`); the package ships no migration. `urssaf:pn:check` reports the
+  missing tables.
+
 ### Added
 
 - Domain model: value objects (tenant, platform id, external reference, URSSAF references, file names and

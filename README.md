@@ -22,11 +22,10 @@ Developed and maintained by [The Bearded Bear](https://the-bearded-bear.com).
 > process; the URSSAF documentation remains the authority on the API, and you remain responsible for the data your
 > application sends to URSSAF.
 
-**Status: implemented, not released yet (version 0.x to come).** The nine operations, the submission workflow, the
-standalone builder, the Symfony bundle and the Doctrine bridge are in place. The run of the contract tests against the real
-sandbox is still to do; the open points of the API reference stay open until URSSAF publishes them or that run settles
-them (see [docs/roadmap.md](docs/roadmap.md)). See the architecture
-decision records in [docs/adr/](docs/adr/README.md).
+**Status: 0.1.0 released; sandbox contract run still to do (see [docs/roadmap.md](docs/roadmap.md)).** The nine
+operations, the submission workflow, the standalone builder, the Symfony bundle and the Doctrine bridge are in place;
+the open points of the API reference stay open until URSSAF publishes them or the sandbox contract run settles them.
+See the architecture decision records in [docs/adr/](docs/adr/README.md).
 
 ## Scope
 
