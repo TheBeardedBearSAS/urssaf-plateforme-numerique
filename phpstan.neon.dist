@@ -34,6 +34,7 @@ parameters:
                 - DomainException
                 - LogicException
                 - RuntimeException
+                - TheBeardedBear\UrssafPlateformeNumerique\Domain\Exception\DomainException
                 # Framework extension points without an interface alternative (bridges only).
                 - Doctrine\DBAL\Types\Type
                 - Symfony\Component\HttpKernel\Bundle\AbstractBundle
@@ -49,6 +50,12 @@ parameters:
         # Repositories/finders return ?Entity for "not found" rather than throwing.
         noNullableReturnTypeDeclaration:
             enabled: false
+
+        # Doctrine generates lazy-loading proxies by extending the mapped entities, so the entities cannot be final;
+        # they are final by convention (@final phpdoc). Embeddables are never proxied and stay final.
+        final:
+            classesNotRequiredToBeAbstractOrFinal:
+                - TheBeardedBear\UrssafPlateformeNumerique\Domain\Submission\Submission
 
     shipmonkRules:
         enableAllRules: true
