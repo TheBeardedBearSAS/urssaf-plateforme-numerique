@@ -32,6 +32,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   guard, unknown outcome), `SyncSubmissionStatuses`, `RefreshSubmission`, `ReconcileUnknownSubmissions` (search by
   file name, ADR 0003), `ResolveSubmissionOutcome`, outbox relay and purge; live queries (get, search, download,
   news feed) and local queries (submission, list, workflow overview); `UnitOfWork`, `WorkflowPolicy`.
+- Standalone builder and facade (`UrssafPlateformeNumeriqueBuilder`, `docs/standalone.md`) to use the package
+  without a framework; in-memory URSSAF platform for host tests (`Testing\SimulatedPlatformGateway`,
+  `docs/testing.md`); PHPBench benchmarks of the search validation, the query and multipart encoding and the decoding
+  of the official payloads and of full 500-item search pages (`make bench`).
 - Architecture decision records (`docs/adr/`): the reference architecture inherited from
   `thebeardedbear/urssaf-tiers-prestations` (ADR 0000) and the decisions specific to this API (ADR 0001 to 0013).
 - Project skeleton: Docker tooling, quality gates (`make ci`) and GitHub Actions CI, identical to the other URSSAF
