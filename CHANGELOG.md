@@ -45,6 +45,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   report download, news, status, outbox, check), Messenger messages, Scheduler schedule, non-blocking locks, en / fr
   translations, simulated gateway for tests, and a Flex recipe (`recipe/`). Dev dependency `symfony/scheduler`
   (conflict floor `<6.4.3`, as the reference).
+- Opt-in contract tests against the URSSAF sandbox and the test API (`make test-contract`, manual CI job
+  `contract`), skipped without `URSSAF_SANDBOX_CLIENT_ID` / `URSSAF_SANDBOX_CLIENT_SECRET`.
 - Architecture decision records (`docs/adr/`): the reference architecture inherited from
   `thebeardedbear/urssaf-tiers-prestations` (ADR 0000) and the decisions specific to this API (ADR 0001 to 0013).
 - Project skeleton: Docker tooling, quality gates (`make ci`) and GitHub Actions CI, identical to the other URSSAF

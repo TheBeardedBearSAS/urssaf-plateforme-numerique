@@ -96,6 +96,40 @@ handlers of the same kernel.
 
 ## Contract tests against the real platform
 
-The simulator proves your code, not the URSSAF contract. The contract tests of this package (`make test-contract`) call
-the real platform with credentials taken from environment variables; they are never part of the default test run, and
-their setup is described with them.
+The simulator proves your code, not the URSSAF contract. The contract tests of this package (`tests/Contract`, group
+`contract`, `make test-contract`) call the real platforms with credentials taken from environment variables. They are
+never part of the default run (`make ci`, `make test`), nor of the coverage and mutation gates; without credentials each
+test is skipped. No real data is used: the identifiers are yours, the uploaded file and its name are fictitious and
+generated per run.
+
+| Variable | Role |
+|---|---|
+| `URSSAF_SANDBOX_CLIENT_ID`, `URSSAF_SANDBOX_CLIENT_SECRET` | Required: credentials of the "Echanges reels" sandbox (`api-edi`). |
+| `URSSAF_SANDBOX_PLATFORM_ID` | Platform id of that sandbox; the tests that need a platform are skipped, with an explicit message, without it. |
+| `URSSAF_SANDBOX_BASE_URI` | Optional host override of the sandbox (the base path and scope still follow the target). |
+| `URSSAF_TEST_API_CLIENT_ID`, `URSSAF_TEST_API_CLIENT_SECRET`, `URSSAF_TEST_API_PLATFORM_ID` | Optional: the technical test API ("Bac a sable", served from `api.urssaf.fr`); its tests are skipped when missing. |
+| `URSSAF_SANDBOX_UPLOAD` | `1` enables the upload test (off by default). |
+
+What they check, the first goals of the [roadmap](roadmap.md):
+
+- a token is obtained on the sandbox host (this settles the open point about the token host: a failure is only
+  reported, there is no automatic retry against `https://api.urssaf.fr`);
+- the identification and declaration searches answer a page whose `UCN-*` pagination headers are read; only types are
+  asserted, any content is accepted;
+- `get` of an unknown but well-formed `urssafRef` (a fictitious UUID) answers `UrssafResourceNotFound`; a
+  `UrssafRequestRejected` (400 is only declared generically) does not fail the test, which is reported as incomplete
+  with the HTTP status and the raw error codes in its message;
+- the news feed answers a page on the sandbox; on the test API the gateway refuses it locally
+  (`OperationNotSupported`) and a raw call to `/news-feed` answers 404 (`UnexpectedUrssafResponse`);
+- opt-in upload: a fictitious `.xml.gz` is sent (its processing is expected to be rejected asynchronously), the
+  `urssafRef` is returned, the search (no keyword, newest first, pages of 500, like the reconciliation service) then lists a
+  submission whose file name equals the uploaded name (the assumption of [ADR 0003](adr/0003-unknown-upload-outcome.md)), and `get` answers `IN_PROCESS`, `ACCEPTED` or `REJECTED` with a
+  parsed `lastUpdateDate`.
+
+```sh
+export URSSAF_SANDBOX_CLIENT_ID=... URSSAF_SANDBOX_CLIENT_SECRET=... URSSAF_SANDBOX_PLATFORM_ID=...
+make test-contract
+```
+
+In GitHub Actions the `contract` job is manual (Actions > CI > Run workflow, `contract` checked) and reads the secrets
+(client ids and secrets) and the variables (platform ids, base URI, upload flag) of the `urssaf-sandbox` environment.
