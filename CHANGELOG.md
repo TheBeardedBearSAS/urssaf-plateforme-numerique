@@ -21,6 +21,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Public integration events `urssaf.pn.*` (`Contract\Event`, `docs/integration-events.md`, ADR 0010).
 - Wire mappers for identifications, declarations, the news feed, upload answers, error payloads, `UCN-*`
   pagination headers and query strings, with hand-built fixtures flagged as such (`tests/Fixtures/wire/README.md`).
+- HTTP gateway (`UrssafHttpGateway`, `UrssafGatewayFactory`): OAuth2 client credentials with a cached token
+  (PSR-6 / PSR-16 / in-memory stores), the three targets (production, sandbox, test API), multipart uploads,
+  streamed downloads, `Accept-Language`, `Retry-After`, the status mapping of ADR 0002 and the unknown upload outcome
+  of ADR 0003. Adapters: clocks, UUIDs, PSR-14 event publisher and sink, in-memory outbox, repository, credentials
+  and platform resolver, PSR-3 failure reporter, local and in-memory file sources, optional sliding-window rate
+  limiter. Runtime requirements: `psr/http-client`, `psr/http-factory`, `psr/http-message`, `psr/log`,
+  `psr/cache`, `psr/simple-cache`, `psr/event-dispatcher`, `psr/clock`, `ext-json`.
 - Architecture decision records (`docs/adr/`): the reference architecture inherited from
   `thebeardedbear/urssaf-tiers-prestations` (ADR 0000) and the decisions specific to this API (ADR 0001 to 0013).
 - Project skeleton: Docker tooling, quality gates (`make ci`) and GitHub Actions CI, identical to the other URSSAF

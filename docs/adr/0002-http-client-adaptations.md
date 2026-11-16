@@ -49,3 +49,16 @@ headers, an array error payload whose codes are not published, and no quota (api
 - The client stays an internal class, as in the reference; only its request shapes and header policy differ.
 - When the contract tests settle a header or the multipart semantics, the change is configuration or a one-line
   mapping change.
+
+## Amendment (2026-11-16, lead-accepted, lot 4)
+
+- `ApiConfiguration` keeps the reference constructor shape: `(Environment, ?string $baseUriOverride, ?string
+  $requestIdHeader, string $acceptLanguage = 'FR', int $tokenSafetyMarginSeconds = 60, string $userAgent,
+  DateTimeZone $apiTimeZone = Europe/Paris)`; the request-id header takes the slot of the reference `applicationId`
+  (a `= null` default is forbidden by `ergebnis.noParameterWithNullDefaultValue`). `forEnvironment()` passes null.
+- 404 maps to `UrssafResourceNotFound` only on `getPlatformIdentification`, `getPlatformDeclaration` and the two
+  downloads; on a search or the news feed it is an `UnexpectedUrssafResponse` (undeclared status).
+- The token cache key `'urssaf_pn.' . sha256(…)` is longer than 64 characters, so `CacheKey` stores it as
+  `hashed_<sha256>`; the key stays deterministic and never contains the secret.
+- The gateway exceptions for 401/403 and the upload 5xx do not carry the parsed `ApiErrors` yet (port signatures of
+  lot 3); the error bodies are still never logged.
