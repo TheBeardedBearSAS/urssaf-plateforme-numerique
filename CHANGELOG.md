@@ -59,6 +59,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- README, API reference and roadmap: the package is implemented.
 - CI: verifiable quality proofs (Codecov, Stryker Dashboard, SonarQube Cloud, OpenSSF Scorecard; active once the
   repository is public), every GitHub Action pinned to a commit SHA and kept up to date by Dependabot, hadolint on the
   Dockerfile (`make hadolint`, part of `make ci`) with a non-root development image, and benchmarks with PHPBench

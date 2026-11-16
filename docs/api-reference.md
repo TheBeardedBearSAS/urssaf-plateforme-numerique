@@ -24,7 +24,8 @@ schemas** (`"schema": {}`, `components.schemas` is `{}`, examples are Jackson `J
 the real examples. Paths, operation ids, parameters, descriptions and response codes are identical in JSON and YAML
 (checked programmatically); the other differences are listed in §5.
 
-> Status: specification only. Nothing below is implemented yet; see [roadmap.md](roadmap.md).
+> Status: implemented. The package follows this reference; the open points of section 5 are settled by the sandbox
+> contract tests still to run (see [roadmap.md](roadmap.md)).
 
 > **Source and rights.** The specification, the field names, the codes and the official JSON examples quoted here come
 > from the URSSAF documents listed above and remain URSSAF's property. They are reproduced only so the package can
@@ -399,42 +400,56 @@ The Bac à sable YAML defines schemas used by **no** path of either contract: `U
 ## 4. Package decisions derived from the specification
 
 The decisions below are settled, with their rationale, in the architecture decision records of
-[docs/adr/](adr/README.md); this section keeps their summary.
+[docs/adr/](adr/README.md); this section keeps their summary. Nothing below is left to decide: what remains is
+in section 5.
 
-1. **Three targets, one resource model.** `Environment` must model real production, real sandbox (`api-edi`) and the
-   test API ("bac à sable"). Each target carries host, base path and scope (§1). `Environment` today only has
-   `Sandbox` / `Production` with `baseUri()`; it must be extended (e.g. a third case for the test API, whose
-   `baseUri()` is `https://api.urssaf.fr`) and expose base path and scope, reusing the `UrssafEndpoints` constants
-   (`API_BASE_PATH`, `TEST_API_BASE_PATH`, `TOKEN_SCOPE`, `TEST_API_TOKEN_SCOPE`). TBD: enum case name and whether
-   host and base path stay overridable independently (host must stay overridable by configuration).
-2. **News feed on the test API.** The operation does not exist there. Decision: the gateway fails locally with a
-   dedicated exception rather than sending a request that would 404. TBD, to confirm by contract test.
-3. **Uploads.** The package sends a file it is given (name + stream/path); it **does not generate or compress** DPID /
-   DPDE / DPRE XML (XSDs not published). The multipart body (`name`, `data` parts) is built in Infrastructure with PSR-17
-   streams. TBD: how the `name` part relates to the file name of the `data` part (the contract only shows `name`), and
-   local validation of the naming convention (three observed patterns, §5): none until confirmed.
-4. **`type` is explicit.** `DeclarationType` is a required argument of the declaration upload; no inference from the
-   file prefix.
-5. **Asynchronous model.** Upload returns an `UrssafReference` only. No automatic polling in the gateway; an optional
-   application-level `waitUntilProcessed` (interval/timeout configurable, stops when `status != IN_PROCESS`) is TBD.
-   `status` and `paymentStatus` are modelled as independent enums with a raw fallback for unknown values.
+1. **Three targets, one resource model.** `Infrastructure\Urssaf\Environment` has three cases, `Production`,
+   `Sandbox` (`api-edi`) and `TestApi` (the "bac à sable"), each exposing host, base path and scope from the
+   `UrssafEndpoints` constants. The host stays overridable by configuration (`ApiConfiguration::baseUriOverride`,
+   bundle `base_uri`); the base path and the scope follow the target. [ADR 0001](adr/0001-targets.md).
+2. **News feed on the test API.** The operation does not exist there: the gateway throws
+   `Application\Port\Urssaf\OperationNotSupported` before any HTTP call. The contract tests check that the real test
+   API answers 404. [ADR 0001](adr/0001-targets.md).
+3. **Uploads.** The package sends a file it is given (`FileSource`: name + stream); it **does not generate, compress,
+   parse nor validate** DPID / DPDE / DPRE XML and does not check the naming convention. The multipart body has two
+   parts: `name` (the file name) and `data` (the content, `filename` = the same name, `application/octet-stream`),
+   built with PSR-17 streams in a `php://temp` stream. The relation between `name` and the `filename` of `data` is
+   checked by the contract tests (section 5). [ADR 0002](adr/0002-http-client-adaptations.md),
+   [ADR 0005](adr/0005-files.md).
+4. **`type` is explicit.** `DeclarationType` is a required argument of the declaration upload (`UploadDeclaration`); no
+   inference from the file prefix.
+5. **Asynchronous model.** Upload returns an `UrssafReference` only. There is no polling in the gateway and no blocking
+   wait: the status is followed by the `Submission` aggregate and the `SyncSubmissionStatuses` / `RefreshSubmission`
+   use cases, run from a cron job, the console commands or the Scheduler, with configurable intervals
+   ([workflow.md](workflow.md), [ADR 0004](adr/0004-submission-lifecycle.md)). `status` and `paymentStatus` are
+   independent enums with a raw fallback for unknown values. An upload whose answer is lost is never resent
+   ([ADR 0003](adr/0003-unknown-upload-outcome.md)); a second declaration of a type already in process is refused
+   locally ([ADR 0008](adr/0008-concurrent-declaration-guard.md)).
 6. **Pagination.** Searches return a `Page` (items + total pages/count/current/per-page parsed from the `UCN-*`
    headers; headers tolerated as absent since declared as strings). `size` is capped client-side at 500.
-7. **Dates.** `start_date` / `end_date` sent as `YYYY-MM-DD`. `period` is a `YYYY-MM` value object (a single value on
-   identifications, a list on declarations). `lastUpdateDate` has no time zone in the example: parsed as
-   `Europe/Paris` — TBD until confirmed. `uploadDate` / `treatmentDate` have no declared format: kept as raw string
-   with a best-effort parse — TBD. `newsDate` is an RFC 3339 instant.
+7. **Dates.** `start_date` / `end_date` are sent as `YYYY-MM-DD`. `period` is a `YYYY-MM` value object (a single value on
+   identifications, a list on declarations); on the wire the raw string is kept next to the parsed value, so an
+   unexpected format never breaks a read. `lastUpdateDate`: an explicit offset is honoured, a missing one is interpreted
+   in `ApiConfiguration::apiTimeZone()` (default `Europe/Paris`, bundle `api_timezone`) and stored as a UTC instant.
+   `uploadDate` / `treatmentDate` have no declared format: raw string plus a best-effort parse (`ApiTimestamp`).
+   `newsDate` is a strict RFC 3339 instant. Counters and amounts are kept as decimal strings with no unit
+   (`DecimalNumber`). [ADR 0006](adr/0006-numbers-and-dates.md).
 8. **Downloads.** Returned as a stream/binary value, never decoded; no assumption on file name or inner format.
 9. **Errors.** Array payload parsed into a list of `{code, message, description}`; unknown codes preserved raw. HTTP
    429/503 handled generically (Retry-After) even though not declared.
 10. **`Accept-Language`.** Configurable, default `FR` (the API default), sent in upper case as in the contract.
-11. **Persistence.** The API is stateless on the client side, but uploads are asynchronous and `urssafRef` must be
-    retained. A Doctrine submission log (urssafRef, type, name, period, last known `status` / `paymentStatus`) is a
-    possible optional bridge; TBD.
+11. **Persistence.** The `Submission` aggregate keeps the `urssafRef`, the kind, the declaration type, the file name, a
+    content fingerprint, the local state and the last polled `status` / `paymentStatus`; the file content is never
+    stored. Adapters: in-memory, Doctrine (optional bridge, tables `urssaf_pn_*`) or your own repository.
+    [ADR 0004](adr/0004-submission-lifecycle.md), [ADR 0011](adr/0011-doctrine-bridge.md).
 12. **Personal data.** `userId`, `userEmail` (and, in the orphan schemas, names, birth data, address, phone, e-mail) are
     personal data: never logged. Reports may contain personal data of the platform's users.
 13. **Source of types.** Models follow the YAML schemas; the JSON contracts only confirm paths, parameters and codes.
 14. **Orphan schemas (§3.6).** Not implemented until the endpoint is published.
+15. **Tenants.** A tenant is one set of OAuth2 credentials and one `platformId` (`PlatformResolver`), kept verbatim.
+    [ADR 0007](adr/0007-tenant-model.md).
+16. **Events and integrations.** Public integration events `urssaf.pn.*` through an outbox
+    ([ADR 0010](adr/0010-integration-events.md)); Symfony bundle ([ADR 0012](adr/0012-symfony-bridge.md)).
 
 ---
 
@@ -478,3 +493,30 @@ Unknowns (**not published**):
 - Content, name and format of report and result files; unit and currency of `statistics`.
 - Time zone of `lastUpdateDate`, `uploadDate`, `treatmentDate`.
 - Whether `status` / `paymentStatus` values may be extended (enums are closed in the contract).
+
+### How the package handles each open point
+
+Only facts from the code and the ADRs; the sandbox contract tests (`make test-contract`, see the README) are what will
+settle them.
+
+| Open point | Handling in the package | Where |
+|---|---|---|
+| Token host of `api-edi` (the sandbox JSON declares the production `tokenUrl`) | The token is requested from `<host>/api/oauth/v1/token` of the selected target; the host override (`base_uri`) moves both the token and the API calls. Assumption: same host as the target. | ADR 0001 |
+| Credentials and data shared between the test API and `api-edi` | Nothing is assumed: one tenant is one set of credentials and one `platformId`; the target is chosen per configuration, and the contract tests accept a separate credential set for the test API. | ADR 0001, ADR 0007 |
+| `name` part vs file name of the `data` part | Both carry the same name (`name` = file name, `data` `filename` = same name, `application/octet-stream`). Assumption, one-line change when settled. | ADR 0002 |
+| File name echoed by the search (`identificationFileName`, `declarationFileName`) | The reconciliation of an unknown upload relies on it: it adopts the only result whose file name equals the uploaded name. When URSSAF does not echo it, zero candidates are found and the submission stays `outcome_unknown` for an operator. | ADR 0003 |
+| Quotas, 429 / 503 and timeouts | Not declared but handled generically: 429 and 5xx are `UrssafUnavailable` with the `Retry-After` seconds when present; optional in-process `SlidingWindowRateLimiter` (bundle `rate_limiter`), none by default; the HTTP timeout is that of the PSR-18 client (bundle `http_timeout`, default 15 s). | ADR 0002 |
+| Error codes (`Error.code`), 401 / 403 payload shape | Error bodies are parsed leniently into `ApiErrors` (a list, a single object or an unreadable body); codes are kept raw and never interpreted; 401 invalidates the token and replays once, then `UrssafAuthenticationFailed`; 403 is `UrssafAuthenticationFailed`. | ADR 0002 |
+| Defaults of `page` / `size`, default sort, sortable fields | `page` and `size` are optional and not sent when not given; `size` is validated between 1 and 500; `sort` is a free `field:ASC` / `field:DESC` (field restricted to letters, digits, `_` and `.`), repeated as a query array. The reconciliation sorts `lastUpdateDate:DESC` (a key shown by the contract examples). | ADR 0002, ADR 0003 |
+| `search` semantics | Passed verbatim (at most 255 characters), never logged; no local interpretation. | ADR 0009 |
+| Time zone of `lastUpdateDate`, `uploadDate`, `treatmentDate` | Explicit offset honoured; a missing one is interpreted in `api_timezone` (default `Europe/Paris`, configurable); `uploadDate` / `treatmentDate` keep the raw string next to a best-effort parse. | ADR 0006 |
+| `UCN-*` pagination headers declared as strings | Parsed as non-negative integers; absent or non-numeric gives `null`. | ADR 0002 |
+| Formats of `platformId`, `urssafRef`, `fileRef`, `idNews` | `platformId` is kept verbatim (non-empty, at most 64 characters, no `/`); the other identifiers are opaque strings with no format check. | ADR 0007 |
+| DPID / DPDE / DPRE naming, XSDs, maximum file size, `Content-Type` of `data` | No check: the package transports the file it is given; the content type of the `data` part is `application/octet-stream`. A check can be added behind an opt-in once published. | ADR 0005, ADR 0002 |
+| Content and name of report files; unit and currency of counters | Downloads are streamed, never decoded, stored nor logged, with `Content-Type` and `Content-Disposition` exposed raw; counters are decimal strings with no unit. | ADR 0005, ADR 0006 |
+| `status` / `paymentStatus` values extended later | Unknown values are kept raw; an unknown `status` keeps the submission `in_process` (still polled), an unknown `paymentStatus` keeps the declaration unsettled. | ADR 0004 |
+| News feed absent on the test API | Local `OperationNotSupported`; the contract tests check the real 404. | ADR 0001 |
+| Orphan `UserIdentification*` schemas | Not implemented; the contract tests look for the endpoint behind them. | section 3.6 |
+| Several submissions of the same period for identifications | No local guard ("should" is not a rule); declarations are guarded locally. | ADR 0008 |
+
+Discrepancies found while implementing: none beyond those listed above.
