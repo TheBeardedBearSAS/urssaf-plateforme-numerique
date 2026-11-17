@@ -1,3 +1,9 @@
+# This file is part of thebeardedbear/urssaf-plateforme-numerique.
+#
+# Copyright (c) TheBeardedBear and the urssaf-plateforme-numerique contributors
+#
+# SPDX-License-Identifier: MIT
+
 calendar_date.invalid_date: 'La date n''existe pas.'
 calendar_date.invalid_format: 'La date doit être écrite AAAA-MM-JJ.'
 content_fingerprint.invalid_format: 'L''empreinte du contenu doit comporter 64 caractères hexadécimaux en minuscules.'
