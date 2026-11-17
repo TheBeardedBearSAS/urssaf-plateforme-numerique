@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- Every source file now carries a copyright and `SPDX-License-Identifier: MIT` header, enforced by PHP CS Fixer
+  (`header_comment`) for PHP and by `make guard` (`bin/check-spdx`) for the other source files.
 - The Flex recipe is submitted to symfony/recipes-contrib ([symfony/recipes-contrib#2123](https://github.com/symfony/recipes-contrib/pull/2123)); README, `docs/symfony.md`, the roadmap and
   ADR 0012 say so.
 
