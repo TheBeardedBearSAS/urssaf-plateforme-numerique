@@ -67,3 +67,11 @@ Compared with what `src/Bridge/Symfony` ships:
   - `declaration.upload`: per tenant and declaration type;
   - `submissions.sync` and `submissions.reconcile`: per tenant;
   - `outbox.relay`: one lock for the whole relay (scope `*`).
+
+## Amendment (2026-11-17, lead-accepted, release 0.1.0)
+
+- The Flex recipe of `recipe/thebeardedbear/urssaf-plateforme-numerique/0.1/` is submitted, unchanged, to
+  symfony/recipes-contrib ([symfony/recipes-contrib#2123](https://github.com/symfony/recipes-contrib/pull/2123)), as the other URSSAF packages did. `recipe/` stays its source: a change of the
+  recipe adds a version directory here and is submitted upstream in the same form. `bin/build-flex-endpoint` and the
+  CI job `flex-endpoint` are kept, as in the CESU package, for hosts that serve the recipe from their own endpoint
+  until the upstream merge.

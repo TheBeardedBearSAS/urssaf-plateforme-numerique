@@ -17,7 +17,7 @@ declares is prefixed, so that it never collides with another URSSAF package inst
 ## Symfony Flex recipe
 
 The recipe lives in `recipe/thebeardedbear/urssaf-plateforme-numerique/<version>/` (manifest and copied files), in the
-layout of [symfony/recipes-contrib](https://github.com/symfony/recipes-contrib), where it is published: copy the version
+layout of [symfony/recipes-contrib](https://github.com/symfony/recipes-contrib), where it is submitted ([symfony/recipes-contrib#2123](https://github.com/symfony/recipes-contrib/pull/2123)): copy the version
 directory there in a pull request when a release changes it (Flex picks the highest recipe version not above the
 installed package version). It registers the bundle for every environment, copies
 `config/packages/urssaf_plateforme_numerique.yaml` and adds the following variables to `.env` (empty values: fill them
