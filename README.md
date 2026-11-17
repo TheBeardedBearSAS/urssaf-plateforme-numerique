@@ -76,9 +76,9 @@ The package depends on PSR interfaces only: install a PSR-18 HTTP client and PSR
 the default client is a dedicated Symfony HttpClient). With Symfony Flex, the recipe of the package registers the
 bundle, copies a commented `config/packages/urssaf_plateforme_numerique.yaml` (the simulated URSSAF platform in the
 `test` environment) and adds `URSSAF_PN_ENV`, `URSSAF_PN_CLIENT_ID`, `URSSAF_PN_CLIENT_SECRET` and
-`URSSAF_PN_PLATFORM_ID` to `.env`. The recipe is not published in
-[symfony/recipes-contrib](https://github.com/symfony/recipes-contrib) yet: until then, do these steps by hand (Quick
-start B below), or serve the recipe from your own Flex endpoint built by `bin/build-flex-endpoint` (see
+`URSSAF_PN_PLATFORM_ID` to `.env`. The recipe is submitted to
+[symfony/recipes-contrib](https://github.com/symfony/recipes-contrib) ([symfony/recipes-contrib#2123](https://github.com/symfony/recipes-contrib/pull/2123)) and not merged yet: until then, do these
+steps by hand (Quick start B below), or serve the recipe from your own Flex endpoint built by `bin/build-flex-endpoint` (see
 [docs/symfony.md](docs/symfony.md#symfony-flex-recipe)).
 
 With Doctrine, generate the tables of the package (it ships no migration, see
@@ -202,7 +202,8 @@ your integration with the simulator ([docs/testing.md](docs/testing.md)).
 
 ## Quick start B: Symfony
 
-Once the recipe is published in symfony/recipes-contrib, Symfony Flex will register the bundle, copy the configuration
+Once the recipe is merged in symfony/recipes-contrib ([symfony/recipes-contrib#2123](https://github.com/symfony/recipes-contrib/pull/2123)) and the application allows contrib recipes
+(`composer config extra.symfony.allow-contrib true`), Symfony Flex will register the bundle, copy the configuration
 and add the variables to `.env`:
 
 ```sh
