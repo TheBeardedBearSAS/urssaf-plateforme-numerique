@@ -52,7 +52,10 @@ final readonly class MultipartBody
 
         try {
             while (!$source->eof()) {
-                $body->write($source->read(self::CHUNK_SIZE));
+                // Read into a variable first: the write is then the only statement a mutant can drop, and dropping it
+                // still reaches the end of the stream instead of looping forever.
+                $chunk = $source->read(self::CHUNK_SIZE);
+                $body->write($chunk);
             }
         } finally {
             $source->detach();

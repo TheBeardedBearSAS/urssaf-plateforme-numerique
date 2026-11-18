@@ -106,3 +106,6 @@ change, dated and marked lead-accepted.
 - Infection `timeout` is 180 s instead of the reference 30 s, and `make infection` and the CI job fail when a mutant
   is *skipped*: Infection never runs a mutant whose covering tests exceed the limit in total, while MSI still reads
   100 %. The change makes the gate stricter (justified in `infection.json5`).
+- `timeoutsAsEscaped` is enabled and `make infection` and the CI job also fail on "Timed Out" and "Syntax Errors"
+  mutants: neither is a verdict. The code is written so every mutant terminates (bounded loops, no open-ended
+  `while`/`do`), and so every mutant is valid PHP.

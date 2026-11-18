@@ -40,6 +40,7 @@ final class DecimalNumberTest extends TestCase
         yield 'largest accepted magnitude' => [999_999_999_999_999.0, '999999999999999.0'];
         yield 'smallest accepted magnitude' => [0.0001, '0.0001'];
         yield 'negative zero' => [-0.0, '0.0'];
+        yield 'longest fraction (17 significant digits from the 4th decimal)' => [1.234_567_890_123_456_7E-4, '0.00012345678901234567'];
         yield 'large integral' => [123_456_789_012.0, '123456789012.0'];
     }
 
