@@ -25,6 +25,7 @@ final readonly class DecimalNumber implements Stringable
     private const PATTERN = '/^-?(0|[1-9]\d*)(\.\d+)?$/D';
     private const MAX_MAGNITUDE = 1.0e15;
     private const MIN_MAGNITUDE = 1.0e-4;
+    private const MAX_DECIMALS = 20;
     private const INTEGRAL_PATTERN = '/^(-?\d+)(?:\.0+)?$/D';
 
     private function __construct(private string $value) {}
@@ -47,12 +48,18 @@ final readonly class DecimalNumber implements Stringable
         if (!is_finite($value) || $magnitude >= self::MAX_MAGNITUDE || ($magnitude !== 0.0 && $magnitude < self::MIN_MAGNITUDE)) {
             throw self::outOfRange();
         }
-        $decimals = 0;
-        do {
-            $representation = \sprintf('%.' . $decimals++ . 'F', $value);
-        } while (filter_var($representation, FILTER_VALIDATE_FLOAT) !== $value);
+        // Bounded search (never an open-ended loop, so every code mutant terminates): a finite float within
+        // [MIN_MAGNITUDE, MAX_MAGNITUDE) round-trips with 1 to MAX_DECIMALS decimals (17 significant digits, the first
+        // one at the 4th decimal at worst). At least one decimal is written, which gives the ".0" of an integral value.
+        $representation = '';
+        foreach (range(1, self::MAX_DECIMALS) as $decimals) {
+            $representation = \sprintf('%.' . $decimals . 'F', $value);
+            if (filter_var($representation, FILTER_VALIDATE_FLOAT) === $value) {
+                break;
+            }
+        }
 
-        return new self(str_contains($representation, '.') ? $representation : $representation . '.0');
+        return new self($representation);
     }
 
     /**

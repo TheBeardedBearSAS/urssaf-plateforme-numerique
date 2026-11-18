@@ -70,6 +70,8 @@ infection: ## Mutation testing (100% MSI); runs its own initial test pass (never
 	$(PHP) vendor/bin/infection --min-msi=100 --min-covered-msi=100 --threads=max --show-mutations --no-progress \
 		--test-framework-options="$(UNIT_FUNCTIONAL)"
 	@grep -q '^Skipped: 0$$' var/infection/summary.log || { echo 'Infection skipped mutants (time limit, see infection.json5)'; exit 1; }
+	@grep -q '^Syntax Errors: 0$$' var/infection/summary.log || { echo 'Infection produced mutants that are not valid PHP (rewrite the source so every mutant parses)'; exit 1; }
+	@grep -q '^Timed Out: 0$$' var/infection/summary.log || { echo 'Infection timed out on mutants (a timed-out mutant is no verdict: make the code terminate, see infection.json5)'; exit 1; }
 
 phpstan: ## PHPStan level max (always on PHP 8.2, see docs/adr/0013)
 	$(PHP_ANALYSIS) vendor/bin/phpstan analyse --memory-limit=-1 --no-progress
