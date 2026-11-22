@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- `SlidingWindowRateLimiter` counts the calls per second instead of keeping one entry per call: a check costs the number of distinct seconds in the window, not the number of calls (same quota, window and retry delay). Filling a large quota no longer slows Xdebug path coverage down quadratically.
 - Infection: `timeout` raised from 30 s to 180 s, and `make infection` and the CI job fail when a mutant is skipped (Infection never runs a mutant whose covering tests exceed the limit, yet reports MSI 100 %).
 - Infection: no mutant goes unevaluated any more. `timeoutsAsEscaped` is enabled, `make infection` and the CI job also fail on "Timed Out" and "Syntax Errors" mutants, and the code was changed so every mutant terminates (`DecimalNumber::fromFloat` searches a bounded range of decimals, `MultipartBody` reads a chunk before writing it).
 - Every source file now carries a copyright and `SPDX-License-Identifier: MIT` header, enforced by PHP CS Fixer
